@@ -1,0 +1,60 @@
+package io.nutz.netlab.service;
+
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.ioc.loader.annotation.Inject;
+import org.nutz.ioc.loader.annotation.IocBean;
+
+/**
+ * 	端口管理器
+ * @author Administrator
+ *
+ */
+@IocBean(create = "init")
+public class PortManager {
+	
+	@Inject
+	protected PropertiesProxy conf;
+
+	// 保存可用端口
+	protected Queue<Integer> avaiPorts;
+	
+	protected int startPort;
+	
+	protected int endPort;
+	
+	protected AtomicInteger used = new AtomicInteger();
+
+	/**
+	 * 	出借一个端口,如果没有可用的端口, 会返回null
+	 */
+	public Integer take() {
+		Integer value = avaiPorts.poll();
+		if (value != null)
+			used.incrementAndGet();
+		return value;
+	}
+	
+	/**
+	 * 	返还一个端口,必须在范围内
+	 */
+	public void recycle(Integer port) {
+		if (port == null || port <= startPort || port >= endPort)
+			return;
+		avaiPorts.add(port);
+		used.decrementAndGet();
+	}
+	
+	public void init() {
+		startPort = conf.getInt("netlab.port.start", 21000);
+		endPort = conf.getInt("netlab.port.end", 29000);
+		avaiPorts = new LinkedBlockingQueue<>(endPort - startPort);
+		// TODO 要不要搞个乱序
+		for (int i = startPort; i < endPort; i++) {
+			avaiPorts.add(i);
+		}
+	}
+}

@@ -8,9 +8,6 @@
 
 package org.smartboot.socket.transport;
 
-
-import org.nutz.lang.random.R;
-import org.nutz.lang.util.NutMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartboot.socket.MessageProcessor;
@@ -251,14 +248,12 @@ public class AioSession<T> {
             }
         }
     }
-    
-    private String _id = R.UU32();
 
     /**
      * 获取当前Session的唯一标识
      */
     public final String getSessionID() {
-        return _id;
+        return Integer.toHexString(System.identityHashCode(this));
     }
 
     /**
@@ -464,17 +459,5 @@ public class AioSession<T> {
                 AioSession.this.inputStream = null;
             }
         }
-    }
-    
-    // 添加用户标识
-    private NutMap attrs = new NutMap();
-    public String getAttr(String key) {
-        return attrs.getString(key);
-    }
-    public void setAttr(String key, String value) {
-        this.attrs.setv(key, value);
-    }
-    public NutMap getAttrs() {
-        return attrs;
     }
 }

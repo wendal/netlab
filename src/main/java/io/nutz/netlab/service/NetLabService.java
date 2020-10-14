@@ -3,8 +3,6 @@ package io.nutz.netlab.service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -26,14 +24,11 @@ import io.nutz.netlab.ws.NetLabWsEndpoint;
  * NetLab的主服务类
  *
  */
-@IocBean(create = "init")
+@IocBean
 public class NetLabService {
 
 	// 日志
 	private static final Log log = Logs.get();
-
-	// 保存可用端口
-	protected Queue<Integer> avaiPorts;
 
 	// 已创建的连接实例
 	protected Map<Integer, NetLabPortEntity> entites = new HashMap<>();
@@ -45,13 +40,16 @@ public class NetLabService {
 	// 配置信息
 	@Inject
 	protected PropertiesProxy conf;
+	
+	@Inject
+	protected PortManager portManager;
 
 	/**
 	 * 	新建一个连接实例,必须传入一个唯一的id
 	 */
 	public NetLabPortEntity newPort(String selfId) {
 		// 弹出一个可用端口
-		Integer port = avaiPorts.poll();
+		Integer port = portManager.take();
 		if (port == null) {
 			// 全部端口都用完了!!
 			log.warn("all port used!");
@@ -71,13 +69,16 @@ public class NetLabService {
 		entity.server = server;
 		entity.port = port;
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
+		server.setBossShareToWorkerThreadNum(2);
+		server.setBossThreadNum(2);
+		server.setWorkerThreadNum(2);
 		try {
 			// GO,启动监听
 			server.start();
 		} catch (IOException e) {
 			// FUCK, 监听失败
 			log.info("创建Socket监听失败 port=" + port, e);
-			avaiPorts.add(port); // 返还port
+			portManager.recycle(port); // 返还port
 			return null;
 		}
 		// 创建成功了, 记录之
@@ -95,18 +96,11 @@ public class NetLabService {
 			entity.server.shutdown();
 			entity.server = null;
 			// 回收port
-			avaiPorts.add(port);
+			portManager.recycle(port);
 		}
 	}
 
-	public void init() {
-		int startPort = conf.getInt("netlab.port.start", 21000);
-		int endPort = conf.getInt("netlab.port.end", 29000);
-		avaiPorts = new LinkedBlockingQueue<>(endPort - startPort);
-		for (int i = startPort; i < endPort; i++) {
-			avaiPorts.add(i);
-		}
-	}
+
 
 	public class NetLabMessageProcessor implements MessageProcessor<byte[]> {
 
