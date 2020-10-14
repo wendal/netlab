@@ -18,7 +18,7 @@ import io.nutz.netlab.service.NetLabService;
  * 	页面websocket入口
  *
  */
-@ServerEndpoint(value = "/websocket", configurator = NutWsConfigurator.class)
+@ServerEndpoint(value = "/ws/netlab", configurator = NutWsConfigurator.class)
 @IocBean
 public class NetLabWsEndpoint extends AbstractWsEndpoint {
 

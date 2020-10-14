@@ -113,6 +113,11 @@ public class NetLabService {
 				entity.clients.put(session.getSessionID(), session);
 				// 通知网页端
 				re.put("action", "connected");
+				try {
+					re.put("addr", session.getRemoteAddress().toString());
+				} catch (IOException e) {
+					// 不太可能出错吧
+				}
 				endpoint.sendJsonSync(entity.id, re);
 				break;
 			case SESSION_CLOSED:
@@ -134,6 +139,7 @@ public class NetLabService {
 			re.put("action", "data");
 			re.put("client", session.getSessionID());
 			re.put("data", HexBin.encode(msg));
+			re.put("hex", true);
 
 			// 通过websocket发送出去
 			endpoint.sendJsonSync(entity.id, re);
