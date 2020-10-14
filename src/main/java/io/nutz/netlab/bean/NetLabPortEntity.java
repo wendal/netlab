@@ -6,7 +6,7 @@ import org.smartboot.socket.transport.AioQuickServer;
 import org.smartboot.socket.transport.AioSession;
 
 /**
- *	 持有端口转发所需要的全部参数
+ * 持有端口转发所需要的全部参数
  */
 public class NetLabPortEntity {
 
@@ -18,7 +18,7 @@ public class NetLabPortEntity {
 	public int port;
 	// 已连接的客户端
 	public ConcurrentHashMap<String, AioSession<byte[]>> clients = new ConcurrentHashMap<>();
-	
+
 	// 是否广播到其他客户端, 默认是禁止的
 	public boolean broadcast;
 }

@@ -40,12 +40,12 @@ public class NetLabService {
 	// 配置信息
 	@Inject
 	protected PropertiesProxy conf;
-	
+
 	@Inject
 	protected PortManager portManager;
 
 	/**
-	 * 	新建一个连接实例,必须传入一个唯一的id
+	 * 新建一个连接实例,必须传入一个唯一的id
 	 */
 	public NetLabPortEntity newPort(String selfId) {
 		// 弹出一个可用端口
@@ -55,8 +55,8 @@ public class NetLabService {
 			log.warn("all port used!");
 			return null;
 		}
-		
-		//---------------------------------------
+
+		// ---------------------------------------
 		// 创建连接实例
 		NetLabPortEntity entity = new NetLabPortEntity();
 		entity.id = selfId;
@@ -70,7 +70,7 @@ public class NetLabService {
 		entity.port = port;
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
 		server.setBossShareToWorkerThreadNum(2);
-		server.setBossThreadNum(2);
+		server.setBossThreadNum(4);
 		server.setWorkerThreadNum(2);
 		try {
 			// GO,启动监听
@@ -87,7 +87,7 @@ public class NetLabService {
 	}
 
 	/**
-	 * 	关闭端口,释放资源
+	 * 关闭端口,释放资源
 	 */
 	public void closePort(Integer port) {
 		// 从entities移除记录,然后关闭服务器
@@ -99,8 +99,6 @@ public class NetLabService {
 			portManager.recycle(port);
 		}
 	}
-
-
 
 	public class NetLabMessageProcessor implements MessageProcessor<byte[]> {
 
@@ -139,21 +137,32 @@ public class NetLabService {
 
 			// 通过websocket发送出去
 			endpoint.sendJsonSync(entity.id, re);
-			
+
+			// 更新统计信息
+			session.stat.addRx(msg.length);
+
 			// 广播到其他客户端
 			if (entity.broadcast) {
 				for (Map.Entry<String, AioSession<byte[]>> client : entity.clients.entrySet()) {
 					if (client.getKey().equals(session.getSessionID()))
 						continue; // 不要广播给自己
-					try {
-						client.getValue().writeBuffer().write(msg);
-					}
-					catch (Exception e) {
-						log.debug("广播到客户端失败了", e);
-					}
+					writeClient(client.getValue(), msg);
 				}
 			}
 		}
 
+	}
+
+	public boolean writeClient(AioSession<byte[]> session, byte[] msg) {
+		try {
+			// 把数据发出去
+			session.writeBuffer().write(msg);
+			// 更新统计信息
+			session.stat.addTx(msg.length);
+			return true;
+		} catch (Throwable e) {
+			log.debug("发送数据到客户端失败了", e);
+			return false;
+		}
 	}
 }

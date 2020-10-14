@@ -1,6 +1,6 @@
 package io.nutz.netlab.ws;
 
-import java.io.IOException;
+import java.util.Map;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.handler.SimpleWsHandler;
@@ -24,6 +24,7 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		this.netLabService = netLabService;
 	}
 
+	// 获取新端口
 	public void newp(NutMap req) {
 		if (entity != null) {
 			return;
@@ -36,6 +37,7 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		}
 	}
 
+	// 发送数据到单个或全部客户端
 	public void sendc(NutMap req) {
 		if (entity == null) {
 			return; // 没建立端口呢,何来发送
@@ -60,22 +62,19 @@ public class NetLabWsHandler extends SimpleWsHandler {
 			if (se == null) {
 				endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "client is closed"));
 			} else {
-				try {
-					se.writeBuffer().write(buff);
-				} catch (IOException e) {
+				if (!netLabService.writeClient(se, buff)) {
 					endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "write error"));
 				}
 			}
 		}
 		for (AioSession<byte[]> client : entity.clients.values()) {
-			try {
-				client.writeBuffer().writeAndFlush(buff);
-			} catch (IOException e) {
+			if (!netLabService.writeClient(client, buff)) {
 				endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "write error"));
 			}
 		}
 	}
 
+	// 关掉指定客户端
 	public void closec(NutMap req) {
 		String clientId = req.getString("client");
 		AioSession<byte[]> se = entity.clients.remove(clientId);
@@ -84,9 +83,19 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		}
 	}
 	
+	// 配置,当前仅支持broadcast, 是否进行广播
 	public void config(NutMap req) {
 		if (req.containsKey("broadcast")) {
 			entity.broadcast = req.getBoolean("broadcast", false);
 		}
+	}
+	
+	// 查询状态
+	public void stat(NutMap req) {
+		NutMap re = new NutMap();
+		for (Map.Entry<String, AioSession<byte[]>> en : entity.clients.entrySet()) {
+			re.put(en.getKey(), en.getValue().stat);
+		}
+		endpoint.sendJsonSync(id, new NutMap("action", "stat").setv("data", re));
 	}
 }

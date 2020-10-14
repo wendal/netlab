@@ -8,13 +8,6 @@
 
 package org.smartboot.socket.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.smartboot.socket.MessageProcessor;
-import org.smartboot.socket.StateMachineEnum;
-import org.smartboot.socket.buffer.BufferPage;
-import org.smartboot.socket.buffer.VirtualBuffer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -22,6 +15,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smartboot.socket.MessageProcessor;
+import org.smartboot.socket.StateMachineEnum;
+import org.smartboot.socket.buffer.BufferPage;
+import org.smartboot.socket.buffer.VirtualBuffer;
+
+import io.nutz.netlab.bean.ClientStat;
 
 /**
  * AIO传输层会话。
@@ -460,4 +462,6 @@ public class AioSession<T> {
             }
         }
     }
+    
+    public ClientStat stat = new ClientStat();
 }
