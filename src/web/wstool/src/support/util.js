@@ -29,7 +29,7 @@ export default {
     return decodeURIComponent(encoded);
   },
   //---------------------------------------
-  formatDate(date, fmt="yyyy-MM-dd HH:mm:ss") {
+  formatDate(date, fmt="yyyy-MM-dd HH:mm:ss.SSS") {
     if(!_.isDate(date)) {
       date = new Date(date)
     }
