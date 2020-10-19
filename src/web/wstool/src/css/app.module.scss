@@ -1,0 +1,16 @@
+body {
+  margin:0; padding:0; font-size: 14px;
+  color : #CCC; background: #333;
+  //font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Monaco, Consolas, Courier New;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button {
+  font-size: inherit; padding: .5em 1em;
+  background: #888; color:#FFF;
+  outline:none; border:0; cursor:pointer;
+  &:hover {
+    background: #AAA; color:#FF0;
+  }
+}

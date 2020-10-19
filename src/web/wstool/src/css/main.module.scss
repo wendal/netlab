@@ -1,0 +1,87 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+header {
+  display: flex; justify-content: space-between;
+  align-items: center; align-content: center;
+  border-bottom: 1px solid #666;
+  padding: .5em;
+  h1 {padding:0; margin:0; font-size: 1.5em;}
+}
+
+pre.as-error {
+  background: #F00; color:#FF0;
+}
+
+.wstool {
+  div.as-hex {opacity: 0.6; &:hover {opacity: 1;}}
+  div.as-nl  {opacity: 0.6; &:hover {opacity: 1;}}
+  &.use-hex {
+    div.as-hex {background-color: #080; color:#FFF; opacity: 1;}
+  }
+  &.use-nl {
+    div.as-nl {background-color: #08F; color:#FFF; opacity: 1;}
+  }
+}
+
+section {
+  display: flex;  flex-wrap: nowrap; 
+  align-items: stretch; height: 800px;
+  nav {
+    flex: 0 0 auto; width: 30%; max-width: 360px;
+    ul {
+      list-style: none; padding: .5em; margin:0;
+      li{
+        cursor: pointer; padding: 0 .5em .5em .5em;
+        div {font-size: 1.5em; line-height: 2em;}
+        &.is-connected {
+          font-weight: bold; color:#0F0;
+        }
+        &:hover {
+          background: #666;
+        }
+      }
+    }
+  }
+  main {
+    flex:1 1 auto; border:1px solid #555; 
+    position: relative; padding-top: 50px;
+    header {
+      position: absolute; top:0; left:0; right:0; padding: 0;
+      display: flex; flex-wrap: nowrap; align-items: stretch;
+      div {
+        display: flex; align-items: center;
+        flex: 0 0 auto; padding:0 .4em;
+        cursor: pointer;
+      }
+      input {
+        flex:1 1 auto;
+        width:100%; height:50px; padding: 0 .8em;
+        outline:none; font-size: 16px; font-family: inherit;
+        background-color: #333;
+        color: #0F0;
+      }
+    }
+    blockquote {
+      width: 100%; height:100%; padding: .5em; line-height: 1.6em;;
+      background-color: #000; color:#FFF;
+      margin:0; overflow-x:hidden; overflow-y: scroll;
+      font-family: inherit;
+      p {
+        display: flex; 
+        margin:0; padding:0;
+        u {
+          text-decoration: none; width: 50px; text-align: right;
+          display: block; opacity: 0.6;
+          margin:0 .2em;
+        }
+        em {font-style: normal; opacity: 0.6;}
+        &.as-type-IN {color:#FFF;}
+        &.as-type-OUT {color:#FF8;}
+      }
+    }
+  }
+}
