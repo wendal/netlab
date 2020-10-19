@@ -73,6 +73,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 
 	@Override
 	public void run() {
+		log.info("监听UDP端口 " + port);
 		byte[] buff = new byte[1500];
 		ByteBuffer buf = ByteBuffer.wrap(buff);
 		try {

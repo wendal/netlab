@@ -1,5 +1,7 @@
 package io.nutz.netlab.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +15,7 @@ import org.nutz.log.Logs;
 /**
  * 端口管理器
  * 
- * @author Administrator
+ * @author wendal
  *
  */
 @IocBean(create = "init")
@@ -59,9 +61,13 @@ public class PortManager {
 		startPort = conf.getInt("netlab.port.start", 21000);
 		endPort = conf.getInt("netlab.port.end", 29000);
 		avaiPorts = new LinkedBlockingQueue<>(endPort - startPort);
-		// TODO 要不要搞个乱序
+		// 添加所有可用端口
+		java.util.List<Integer> list = new ArrayList<Integer>(endPort - startPort);
 		for (int i = startPort; i < endPort; i++) {
-			avaiPorts.add(i);
+			list.add(Integer.valueOf(i));
 		}
+		// 将端口随机化
+		Collections.shuffle(list);
+		avaiPorts.addAll(list);
 	}
 }
