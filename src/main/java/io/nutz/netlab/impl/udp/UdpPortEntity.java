@@ -105,6 +105,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 						}
 						// 通知网页端
 						NutMap re = new NutMap();
+						re.put("action", "data");
 						re.put("client", key);
 						buf.flip();
 						client.stat.addTx(buf.limit());
