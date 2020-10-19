@@ -64,13 +64,16 @@ public class TcpPortEntity extends AbstractPortEntity {
 		AioSession<byte[]> se = clients.get(clientId);
 		if (se != null) {
 			try {
-				se.writeBuffer().write(data);
+				se.writeBuffer().writeAndFlush(data);
 				// 更新统计信息
 				se.stat.addTx(data.length);
 				return true;
 			} catch (IOException e) {
 				log.debug("发送数据到客户端失败了", e);
 			}
+		}
+		else {
+			log.debug("客户端不存在" + clientId);
 		}
 		return false;
 	}
