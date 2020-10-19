@@ -15,7 +15,7 @@ import org.nutz.plugins.mvc.websocket.WsHandler;
 import io.nutz.netlab.service.NetLabService;
 
 /**
- * 	页面websocket入口
+ * 页面websocket入口
  *
  */
 @ServerEndpoint(value = "/ws/netlab", configurator = NutWsConfigurator.class)
@@ -37,7 +37,8 @@ public class NetLabWsEndpoint extends AbstractWsEndpoint {
 	public void onClose(Session session, CloseReason closeReason) {
 		NetLabWsHandler handler = (NetLabWsHandler) session.getMessageHandlers().iterator().next();
 		if (handler != null && handler.entity != null) {
-			netLabService.closePort(handler.entity.port);
+			netLabService.closePort(handler.entity.getPort());
+			handler.entity = null;
 		}
 	}
 }
