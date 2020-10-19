@@ -28,6 +28,15 @@ export default {
     }
     return decodeURIComponent(encoded);
   },
+  encodeUtf8(str) {
+    let re = []
+    for(let i=0; i<str.length; i++) {
+      let c = str.charCodeAt(i)
+      let cs = _.padStart(c.toString(16).toUpperCase(),2,'0')
+      re.push(cs)
+    }
+    return re.join("")
+  },
   //---------------------------------------
   formatDate(date, fmt="yyyy-MM-dd HH:mm:ss.SSS") {
     if(!_.isDate(date)) {

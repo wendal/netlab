@@ -4,26 +4,41 @@
   box-sizing: border-box;
 }
 
+.wstool {
+  width: 100%; height:100%;
+  display: flex; flex-direction: column; flex-wrap: nowrap;
+}
+
 .wstool > header {
+  flex: 0 0 auto;
   display: flex; justify-content: space-between;
   align-items: center; align-content: center;
   border-bottom: 1px solid #666;
   padding: .5em;
   h1 {
-    padding:0; margin:0; font-size: 1.5em;
+    padding:0 0 0 .5em; margin:0; font-size: 1.5em;
     em {
-      font-size: 24px; font-style: normal; font-weight: normal;
-      color:#0FF; margin-right: 1em;
+      font-size: 16px; font-style: normal; font-weight: normal;
+      color:#F80; margin: 0 .5em;
     }
     u {
       text-decoration: none; font-size: 12px;
       color:#CC0; font-weight: normal;
     }
   }
+  aside {
+    a {
+      font-size: 12px; color:#0FF;
+      i {text-decoration: none; margin-right:.5em;}
+      &:hover {color:#FF0;}
+    }
+    > i {font-size: 1.2em; margin:0 .5em;}
+    button {margin:0 1px;}
+  }
 }
 
-pre.as-error {
-  background: #F00; color:#FF0;
+.wstool > pre.as-error {
+  background: #F00; color:#FF0; padding:0; margin:0;
 }
 
 .wstool {
@@ -38,19 +53,42 @@ pre.as-error {
 }
 
 section {
+  flex: 1 1 auto; padding: .5em;
   display: flex;  flex-wrap: nowrap; 
-  align-items: stretch; height: 800px;
+  align-items: stretch; 
   nav {
     flex: 0 0 auto; width: 30%; max-width: 360px;
+    position: relative;
     ul {
+      position: absolute; top:0; right:0; bottom:0; left:0;
       list-style: none; padding: .5em; margin:0;
+      overflow: auto;
       li{
         cursor: pointer; padding: 0.2em .5em .5em .5em;
         opacity: 0.6;
         border-bottom:1px dashed #999;
         &:first-child {border-top:1px dashed #999;}
-        div {font-size: 1.2em; line-height: 1.6em;}
-        em {font-style: normal; font-weight: normal; color:#DDD;}
+        div.as-info {
+          font-size: 1.2em; line-height: 1.6em;
+          i.current-dot {margin:0 .5em; color:#FFF;}
+          > span {
+            i {transition: .3s;}
+            i:hover {transform: scale(1.2) rotate3d(.5,.5,.5,360deg); color:#F33;}
+          }
+        }
+        div.as-tip {
+          text-align: right;
+          code {
+            margin:0 .5em;
+            &.as-addr-port {color:#0FF; 
+              &:before {
+                display: "inline"; content: ":";
+              }
+            }
+            &.as-client-id {color:#888;}
+          }
+        }
+        code {font-style: normal; font-weight: normal; font-family: inherit;}
         &.is-connected {
           color:#0F0;
         }
@@ -66,7 +104,7 @@ section {
   }
   main {
     flex:1 1 auto; border:1px solid #555; 
-    position: relative; padding-top: 50px;
+    position: relative; padding:50px 0 0 0;
     header {
       position: absolute; top:0; left:0; right:0; padding: 0;
       display: flex; flex-wrap: nowrap; align-items: stretch;
@@ -84,21 +122,40 @@ section {
       }
     }
     blockquote {
-      width: 100%; height:100%; padding: .5em; line-height: 1.6em;;
+      position: absolute; top:50px; left:0; right:0; bottom:0; padding: 0;
+      padding: .5em; line-height: 1.6em;;
       background-color: #000; color:#FFF;
-      margin:0; overflow-x:hidden; overflow-y: scroll;
-      font-family: inherit;
+      margin:0; overflow-x:scroll; overflow-y: scroll;
+      font-family: inherit; white-space: pre-wrap;
       p {
-        display: flex; 
+        display:flex; flex-wrap: wrap; justify-content: flex-start;
         margin:0; padding:0;
+        > * {display: block; white-space: nowrap;}
         u {
           text-decoration: none; text-align: center;
-          display: block; opacity: 0.6;
+          opacity: 0.6;
           margin:0 .2em;
         }
         em {font-style: normal; opacity: 0.6;}
+        span {
+          flex: 1 1 auto; 
+          white-space: normal;
+          word-wrap: break-word;
+        }
+        span.as-dis {width: 50%;}
+        span.as-hex {width: 100%; color: #0FF;}
+        i {font-size: .8em; margin:0 .5em;}
         &.as-type-IN {color:#FFF;}
         &.as-type-OUT {color:#FF8;}
+      }
+    }
+    footer {
+      position: absolute; left:-44px; bottom:0; padding: .2em;
+      > div {
+        padding: .5em; background: #444; cursor: pointer;
+        &.is-on {
+          background: #08F; color:#FFF;
+        }
       }
     }
   }
