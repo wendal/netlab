@@ -1,6 +1,7 @@
 package io.nutz.netlab.impl.tcp;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
@@ -25,7 +26,8 @@ public class TcpMessageProcessor implements MessageProcessor<byte[]> {
 			// 通知网页端
 			re.put("action", "connected");
 			try {
-				re.put("addr", session.getRemoteAddress().toString());
+				InetSocketAddress addr = session.getRemoteAddress();
+				re.put("addr", addr.getAddress().getHostAddress() + ":" + addr.getPort());
 			} catch (IOException e) {
 				// 不太可能出错吧
 			}
