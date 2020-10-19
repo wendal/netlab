@@ -1,0 +1,102 @@
+package io.nutz.netlab.impl.tcp;
+
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
+import org.smartboot.socket.transport.AioQuickServer;
+import org.smartboot.socket.transport.AioSession;
+
+import io.nutz.netlab.bean.AbstractPortEntity;
+
+public class TcpPortEntity extends AbstractPortEntity {
+
+	// 日志
+	private static final Log log = Logs.get();
+
+	// 对应port的TCP服务器
+	protected AioQuickServer<byte[]> server;
+	// 已连接的客户端
+	public ConcurrentHashMap<String, AioSession<byte[]>> clients = new ConcurrentHashMap<>();
+
+	public TcpPortEntity(String id, int port, AbstractWsEndpoint endpoint) {
+		super(id, port, endpoint);
+		SimpleTcpDumpProtocol protocol = new SimpleTcpDumpProtocol();
+		TcpMessageProcessor processor = new TcpMessageProcessor();
+		processor.entity = this;
+		processor.endpoint = endpoint;
+		this.server = new AioQuickServer<>(port, protocol, processor);
+	}
+
+	public boolean start() {
+
+		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
+		server.setBossShareToWorkerThreadNum(2);
+		server.setBossThreadNum(4);
+		server.setWorkerThreadNum(2);
+
+		try {
+			server.start();
+			return true;
+		} catch (Throwable e) {
+			// FUCK, 监听失败
+			log.info("创建Socket监听失败 port=" + port, e);
+			return false;
+		}
+	}
+
+	public ConcurrentHashMap<String, AioSession<byte[]>> getClients() {
+		return clients;
+	}
+
+	public AioQuickServer<byte[]> getServer() {
+		return server;
+	}
+
+	public void setServer(AioQuickServer<byte[]> server) {
+		this.server = server;
+	}
+
+	@Override
+	public boolean send(String clientId, byte[] data) {
+		AioSession<byte[]> se = clients.get(clientId);
+		if (se != null) {
+			try {
+				se.writeBuffer().write(data);
+				// 更新统计信息
+				se.stat.addTx(data.length);
+				return true;
+			} catch (IOException e) {
+				log.debug("发送数据到客户端失败了", e);
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void closeClient(String clientId) {
+		AioSession<byte[]> client = clients.remove(clientId);
+		if (client != null)
+			client.close();
+	}
+
+	protected Object lock = new Object();
+
+	public boolean shutdown() {
+		if (server != null) {
+			synchronized (lock) {
+				try {
+					if (server != null) {
+						server.shutdown();
+						server = null;
+						return true;
+					}
+				} catch (Throwable e) {
+				}
+			}
+		}
+		return false;
+	}
+}

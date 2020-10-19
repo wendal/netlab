@@ -1,19 +1,17 @@
 package io.nutz.netlab.ws;
 
-import java.util.Map;
-
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.handler.SimpleWsHandler;
-import org.smartboot.socket.transport.AioSession;
 
 import com.alibaba.druid.util.HexBin;
 
-import io.nutz.netlab.bean.NetLabPortEntity;
+import io.nutz.netlab.bean.AbstractPortEntity;
 import io.nutz.netlab.service.NetLabService;
 
 public class NetLabWsHandler extends SimpleWsHandler {
 
-	protected NetLabPortEntity entity;
+	protected AbstractPortEntity entity;
 
 	protected NetLabService netLabService;
 
@@ -29,11 +27,11 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		if (entity != null) {
 			return;
 		}
-		entity = netLabService.newPort(id);
+		entity = netLabService.newPort(id, req.getString("type", "tcp"));
 		if (entity == null) {
 			endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "alloc port fail"));
 		} else {
-			endpoint.sendJsonSync(id, new NutMap("action", "port").setv("port", entity.port));
+			endpoint.sendJsonSync(id, new NutMap("action", "port").setv("port", entity.getPort()));
 		}
 	}
 
@@ -57,45 +55,20 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		} else {
 			buff = data.getBytes();
 		}
-		if (clientId != null) {
-			AioSession<byte[]> se = entity.clients.get(clientId);
-			if (se == null) {
-				endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "client is closed"));
-			} else {
-				if (!netLabService.writeClient(se, buff)) {
-					endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "write error"));
-				}
-			}
-		}
-		for (AioSession<byte[]> client : entity.clients.values()) {
-			if (!netLabService.writeClient(client, buff)) {
-				endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "write error"));
-			}
-		}
+		entity.send(clientId, buff);
 	}
 
 	// 关掉指定客户端
 	public void closec(NutMap req) {
 		String clientId = req.getString("client");
-		AioSession<byte[]> se = entity.clients.remove(clientId);
-		if (se != null) {
-			se.close();
-		}
+		if (!Strings.isBlank(clientId))
+			entity.closeClient(clientId);
 	}
-	
+
 	// 配置,当前仅支持broadcast, 是否进行广播
 	public void config(NutMap req) {
 		if (req.containsKey("broadcast")) {
-			entity.broadcast = req.getBoolean("broadcast", false);
+			entity.setBroadcast(req.getBoolean("broadcast", false));
 		}
-	}
-	
-	// 查询状态
-	public void stat(NutMap req) {
-		NutMap re = new NutMap();
-		for (Map.Entry<String, AioSession<byte[]>> en : entity.clients.entrySet()) {
-			re.put(en.getKey(), en.getValue().stat);
-		}
-		endpoint.sendJsonSync(id, new NutMap("action", "stat").setv("data", re));
 	}
 }

@@ -51,7 +51,8 @@
 
 ```json
 {
-	"action" : "newp"
+	"action" : "newp",
+	"type"   : "tcp" // 端口类型,当前支持tcp和udp两种
 }
 ```
 
