@@ -127,34 +127,34 @@ export default {
     myClientPort : undefined,
     myErrMsg : undefined,
     myClients : {
-      "a7305652" : {
-        clientId: "a7305652",
-        addr : "/119.130.132.35:48905",
-        connected: true
-      },
-      "fake0" : {
-        clientId: "fake0",
-        addr : "/119.130.132.35:48905",
-        connected: false
-      },
-      "fake1" : {
-        clientId: "fake1",
-        addr : "/119.130.132.35:48905",
-        connected: true
-      }
+      // "a7305652" : {
+      //   clientId: "a7305652",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: true
+      // },
+      // "fake0" : {
+      //   clientId: "fake0",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: false
+      // },
+      // "fake1" : {
+      //   clientId: "fake1",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: true
+      // }
     },
-    myCurrentClientId : "fake1",
+    myCurrentClientId : undefined,
     myDataSet : {
-      "fake0" : [{
-        type : "IN",
-        ams  : Date.now(),
-        time : WST.formatDate(new Date()),
-        raw  : "abc",
-        hex  : false, 
-        str  : "hello", 
-        strDisplay : "hello", 
-        hexCode : "A0BBCCDEFA"
-      }]
+      // "fake0" : [{
+      //   type : "IN",
+      //   ams  : Date.now(),
+      //   time : WST.formatDate(new Date()),
+      //   raw  : "abc",
+      //   hex  : false, 
+      //   str  : "hello", 
+      //   strDisplay : "hello", 
+      //   hexCode : "A0BBCCDEFA"
+      // }]
     }
   }),
   props: {
