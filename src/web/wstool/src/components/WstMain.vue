@@ -70,6 +70,7 @@
             @click.left="myUseHex=!myUseHex">HEX</div>
           <input placeholder="发送消息" spellcheck="fase"
             ref="input"
+            :readonly="!isCanSendData"
             @change="OnSendMsg"/>
           <div
             class="as-nl"
@@ -180,6 +181,12 @@ export default {
     isClosed() { return "CLOSED" == this.myStat },
     isError() { return "ERROR" == this.myStat },
     hasClients() {return !_.isEmpty(this.TheClientList)},
+    isCanSendData() {
+      if(!this.myCurrentClientId) {
+        return false
+      }
+      return this.isConnected
+    },
     UseHexTip() {
       return this.myUseHex
         ? "消息内容为16进制编码"
@@ -226,6 +233,9 @@ export default {
       })
     },
     OnSendMsg() {
+      if(!this.isCanSendData) {
+        return
+      }
       let str = _.trim(this.$refs.input.value)
       if(!str)
         return
