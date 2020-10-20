@@ -1,6 +1,9 @@
-package io.nutz.netlab.bean;
+package io.nutz.netlab.impl;
 
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
+
+import io.nutz.netlab.bean.PortBinder;
+import io.nutz.netlab.service.MonitorService;
 
 /**
  * 持有端口转发所需要的全部参数
@@ -16,6 +19,8 @@ public abstract class AbstractPortEntity implements PortBinder {
 
 	// 是否广播到其他客户端, 默认是禁止的
 	protected boolean broadcast;
+	
+	protected MonitorService monitor;
 
 	public AbstractPortEntity(String id, int port, AbstractWsEndpoint endpoint) {
 		this.id = id;
@@ -37,5 +42,9 @@ public abstract class AbstractPortEntity implements PortBinder {
 
 	public boolean isBroadcast() {
 		return broadcast;
+	}
+	
+	public void setMonitor(MonitorService monitor) {
+		this.monitor = monitor;
 	}
 }

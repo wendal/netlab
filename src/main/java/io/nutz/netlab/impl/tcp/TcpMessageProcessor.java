@@ -11,10 +11,13 @@ import org.smartboot.socket.transport.AioSession;
 
 import com.alibaba.druid.util.HexBin;
 
+import io.nutz.netlab.service.MonitorService;
+
 public class TcpMessageProcessor implements MessageProcessor<byte[]> {
 
 	public TcpPortEntity entity;
 	public AbstractWsEndpoint endpoint;
+	public MonitorService monitor;
 
 	@Override
 	public void stateEvent(AioSession<byte[]> session, StateMachineEnum stateMachineEnum, Throwable throwable) {
@@ -31,12 +34,14 @@ public class TcpMessageProcessor implements MessageProcessor<byte[]> {
 			} catch (IOException e) {
 				// 不太可能出错吧
 			}
+			monitor.incr("newc:tcp", 1);
 			endpoint.sendJsonSync(entity.getId(), re);
 			break;
 		case SESSION_CLOSED:
 			entity.clients.remove(session.getSessionID());
 			// 通知网页端
 			re.put("action", "closed");
+			monitor.incr("clsc:tcp", 1);
 			endpoint.sendJsonSync(entity.getId(), re);
 			break;
 		default:
@@ -59,6 +64,7 @@ public class TcpMessageProcessor implements MessageProcessor<byte[]> {
 
 		// 更新统计信息
 		session.stat.addRx(msg.length);
+		monitor.incr("rx:tcp", msg.length);
 
 		// 广播到其他客户端
 		if (entity.isBroadcast()) {

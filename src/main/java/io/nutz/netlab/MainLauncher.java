@@ -7,11 +7,16 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Ok;
 
+import io.nutz.netlab.service.MonitorService;
+
 @IocBean(create = "init", depose = "depose")
 public class MainLauncher {
 
 	@Inject
 	protected PropertiesProxy conf;
+	
+	@Inject
+	protected MonitorService monitor;
 
 	@At("/")
 	@Ok("->:/index.html")

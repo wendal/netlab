@@ -9,7 +9,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
-import io.nutz.netlab.bean.AbstractPortEntity;
+import io.nutz.netlab.impl.AbstractPortEntity;
 import io.nutz.netlab.impl.tcp.TcpPortEntity;
 import io.nutz.netlab.impl.udp.UdpPortEntity;
 import io.nutz.netlab.ws.NetLabWsEndpoint;
@@ -37,6 +37,9 @@ public class NetLabService {
 
 	@Inject
 	protected PortManager portManager;
+	
+	@Inject
+	protected MonitorService monitor;
 
 	/**
 	 * 新建一个连接实例,必须传入一个唯一的id
@@ -64,6 +67,7 @@ public class NetLabService {
 			log.info("bad port bind type " + type);
 			return null;
 		}
+		entity.setMonitor(monitor);
 		// GO,启动监听
 		if (entity.start()) {
 
@@ -73,6 +77,8 @@ public class NetLabService {
 		}
 		// 创建成功了, 记录之
 		entites.put(port, entity);
+		// 记录历史
+		monitor.incr("bop", 1);
 		return entity;
 	}
 
@@ -87,6 +93,8 @@ public class NetLabService {
 		if (entity != null && entity.shutdown()) {
 			// 回收port
 			portManager.recycle(port);
+			// 记录历史
+			monitor.incr("bip", 1);
 		}
 	}
 }
