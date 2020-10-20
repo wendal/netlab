@@ -64,8 +64,17 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 	public boolean shutdown() {
 		if (dc != null) {
 			try {
+				if (selector != null) {
+					selector.close();
+					selector = null;
+				}
+			}
+			catch (Throwable e) {
+			}
+			try {
 				dc.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			dc = null;
 			return true;
@@ -75,7 +84,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 
 	@Override
 	public void run() {
-		log.info("监听UDP端口 " + port);
+		log.info("开始监听UDP端口 " + port);
 		byte[] buff = new byte[1500];
 		ByteBuffer buf = ByteBuffer.wrap(buff);
 		try {
@@ -126,6 +135,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 		} catch (IOException e) {
 			log.info("something happen?!!");
 		}
+		log.info("停止监听UDP端口 " + port);
 	}
 
 	@Override

@@ -48,6 +48,8 @@ public class MonitorModule {
 		}
 		re.put("data", data);
 		
+		re.put("now", new NutMap("used", portManager.getUsed()));
+		
 		return re;
 	}
 }
