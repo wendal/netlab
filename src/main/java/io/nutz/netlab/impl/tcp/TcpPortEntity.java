@@ -9,7 +9,7 @@ import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
 import org.smartboot.socket.transport.AioQuickServer;
 import org.smartboot.socket.transport.AioSession;
 
-import io.nutz.netlab.bean.AbstractPortEntity;
+import io.nutz.netlab.impl.AbstractPortEntity;
 
 public class TcpPortEntity extends AbstractPortEntity {
 
@@ -20,18 +20,19 @@ public class TcpPortEntity extends AbstractPortEntity {
 	protected AioQuickServer<byte[]> server;
 	// 已连接的客户端
 	public ConcurrentHashMap<String, AioSession<byte[]>> clients = new ConcurrentHashMap<>();
-
+	
 	public TcpPortEntity(String id, int port, AbstractWsEndpoint endpoint) {
 		super(id, port, endpoint);
+	}
+
+	public boolean start() {
 		SimpleTcpDumpProtocol protocol = new SimpleTcpDumpProtocol();
 		TcpMessageProcessor processor = new TcpMessageProcessor();
 		processor.entity = this;
 		processor.endpoint = endpoint;
+		processor.monitor = monitor;
 		this.server = new AioQuickServer<>(port, protocol, processor);
-	}
-
-	public boolean start() {
-
+		
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
 		server.setBossShareToWorkerThreadNum(2);
 		server.setBossThreadNum(4);
@@ -67,6 +68,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				se.writeBuffer().writeAndFlush(data);
 				// 更新统计信息
 				se.stat.addTx(data.length);
+				monitor.incr("tx:tcp", data.length);
 				return true;
 			} catch (IOException e) {
 				log.debug("发送数据到客户端失败了", e);

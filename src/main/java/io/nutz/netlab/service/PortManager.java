@@ -70,4 +70,8 @@ public class PortManager {
 		Collections.shuffle(list);
 		avaiPorts.addAll(list);
 	}
+	
+	public int getUsed() {
+		return used.get();
+	}
 }

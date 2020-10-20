@@ -6,7 +6,7 @@ import org.nutz.plugins.mvc.websocket.handler.SimpleWsHandler;
 
 import com.alibaba.druid.util.HexBin;
 
-import io.nutz.netlab.bean.AbstractPortEntity;
+import io.nutz.netlab.impl.AbstractPortEntity;
 import io.nutz.netlab.service.NetLabService;
 
 public class NetLabWsHandler extends SimpleWsHandler {
@@ -41,6 +41,9 @@ public class NetLabWsHandler extends SimpleWsHandler {
 			return; // 没建立端口呢,何来发送
 		}
 		String clientId = req.getString("client");
+		if (Strings.isBlank(clientId)) {
+			return;
+		}
 		boolean hex = req.getBoolean("hex", false);
 		String data = req.getString("data");
 		byte[] buff = null;

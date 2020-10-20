@@ -18,7 +18,7 @@ import org.nutz.log.Logs;
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
 
 import io.nutz.netlab.HexBin;
-import io.nutz.netlab.bean.AbstractPortEntity;
+import io.nutz.netlab.impl.AbstractPortEntity;
 
 public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 	// 日志
@@ -44,6 +44,8 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 		}
 		try {
 			dc.send(ByteBuffer.wrap(data), client.addr);
+			client.stat.addTx(data.length);
+			monitor.incr("tx:udp", data.length);
 			return true;
 		} catch (IOException e) {
 			log.debug("发送数据到客户端失败", e);
@@ -62,8 +64,17 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 	public boolean shutdown() {
 		if (dc != null) {
 			try {
+				if (selector != null) {
+					selector.close();
+					selector = null;
+				}
+			}
+			catch (Throwable e) {
+			}
+			try {
 				dc.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			dc = null;
 			return true;
@@ -73,7 +84,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 
 	@Override
 	public void run() {
-		log.info("监听UDP端口 " + port);
+		log.info("开始监听UDP端口 " + port);
 		byte[] buff = new byte[1500];
 		ByteBuffer buf = ByteBuffer.wrap(buff);
 		try {
@@ -102,6 +113,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 							re.put("addr", ip + ":" + port);
 							endpoint.sendJsonSync(this.id, re);
 							re.remove("addr");
+							monitor.incr("newc:udp", 1);
 						}
 						// 通知网页端
 						NutMap re = new NutMap();
@@ -111,6 +123,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 						client.stat.addTx(buf.limit());
 						re.put("data", HexBin.encode(buff, true, buf.limit()));
 						re.put("hex", true);
+						monitor.incr("rx:udp", buf.limit());
 						endpoint.sendJsonSync(this.id, re);
 					}
 
@@ -122,6 +135,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 		} catch (IOException e) {
 			log.info("something happen?!!");
 		}
+		log.info("停止监听UDP端口 " + port);
 	}
 
 	@Override
