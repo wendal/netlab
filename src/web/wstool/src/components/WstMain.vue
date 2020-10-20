@@ -78,7 +78,7 @@
             :aria-label="UseNLTip"
             @click.left="myUseNL=!myUseNL">NL</div>
         </header>
-        <blockquote>
+        <blockquote ref="log">
           <p v-for="line of CurrentClientData"
             :key="line.ams"
             :class="`as-type-${line.type}`">
@@ -127,34 +127,34 @@ export default {
     myClientPort : undefined,
     myErrMsg : undefined,
     myClients : {
-      // "a7305652" : {
-      //   clientId: "a7305652",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // },
-      // "fake0" : {
-      //   clientId: "fake0",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: false
-      // },
-      // "fake1" : {
-      //   clientId: "fake1",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // }
+      "a7305652" : {
+        clientId: "a7305652",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      },
+      "fake0" : {
+        clientId: "fake0",
+        addr : "/119.130.132.35:48905",
+        connected: false
+      },
+      "fake1" : {
+        clientId: "fake1",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      }
     },
-    myCurrentClientId : undefined,
+    myCurrentClientId : "fake1",
     myDataSet : {
-      // "fake0" : [{
-      //   type : "IN",
-      //   ams  : Date.now(),
-      //   time : WST.formatDate(new Date()),
-      //   raw  : "abc",
-      //   hex  : false, 
-      //   str  : "hello", 
-      //   strDisplay : "hello", 
-      //   hexCode : "A0BBCCDEFA"
-      // }]
+      "fake0" : [{
+        type : "IN",
+        ams  : Date.now(),
+        time : WST.formatDate(new Date()),
+        raw  : "abc",
+        hex  : false, 
+        str  : "hello", 
+        strDisplay : "hello", 
+        hexCode : "A0BBCCDEFA"
+      }]
     }
   }),
   props: {
@@ -384,7 +384,7 @@ export default {
       }
 
       let now = new Date()
-      list.splice(0, 0, {
+      list.push({
         type,
         ams  : now.getTime(),
         time : WST.formatDate(now),
@@ -392,6 +392,16 @@ export default {
         hex, str, hexCode,
         strDisplay
       })
+
+      this.$nextTick(()=>{
+        this.scrollLogToBottom()
+      })
+    },
+    scrollLogToBottom() {
+      let $log = this.$refs.log
+      if(_.isElement($log)) {
+        $log.scrollTop = $log.scrollHeight
+      }
     },
     isCanMakeNewWebSocketObj() {
       if(!this.$WEBS)
