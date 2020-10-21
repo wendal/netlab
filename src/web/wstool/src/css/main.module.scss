@@ -153,11 +153,21 @@ section {
       }
     }
     footer {
-      position: absolute; left:-44px; bottom:0; padding: .2em;
+      position: absolute; left:-60px; bottom:0; padding: .2em;
       > div {
         padding: .5em; background: #444; cursor: pointer;
+        margin: 4px; text-align: center;
         &.is-on {
           background: #08F; color:#FFF;
+          &.echo-back {
+            background-color: #C00;
+          }
+        }
+        &.log-order {
+          background : #0FF; color:#008;
+          &.is-desc {
+            background : #0F8; color: #000;
+          }
         }
       }
     }

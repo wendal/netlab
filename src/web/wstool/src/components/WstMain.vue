@@ -97,10 +97,25 @@
         </blockquote>
         <footer>
           <div 
+            class="log-order" 
+            :class="{'is-desc': 'DESC' == myLogOrder}"
+            data-balloon-pos="up"
+            :aria-label="LogOrderTip"
+            @click.left="myLogOrder='ASC'==myLogOrder?'DESC':'ASC'">
+            <i :class="LogOrderIcon"></i>
+          </div>
+          <div 
+            class="echo-back" 
+            :class="{'is-on':myEchoBack}"
+            data-balloon-pos="left"
+            :aria-label="EchoBackTip"
+            @click.left="myEchoBack=!myEchoBack">
+            <i class="fas fa-retweet"></i>
+          </div>
+          <div 
             class="show-hex" 
             :class="{'is-on':myShowLineHex}"
-            data-balloon-length="small"
-            data-balloon-pos="up"
+            data-balloon-pos="right"
             :aria-label="ShowLineHexTip"
             @click.left="myShowLineHex=!myShowLineHex">HEX</div>
         </footer>
@@ -123,38 +138,40 @@ export default {
     myStat : "CLOSED",
     myUseHex : false,
     myUseNL : false,
+    myEchoBack : false,
+    myLogOrder : "ASC",
     myShowLineHex : true,
     myClientPort : undefined,
     myErrMsg : undefined,
     myClients : {
-      // "a7305652" : {
-      //   clientId: "a7305652",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // },
-      // "fake0" : {
-      //   clientId: "fake0",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: false
-      // },
-      // "fake1" : {
-      //   clientId: "fake1",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // }
+      "a7305652" : {
+        clientId: "a7305652",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      },
+      "fake0" : {
+        clientId: "fake0",
+        addr : "/119.130.132.35:48905",
+        connected: false
+      },
+      "fake1" : {
+        clientId: "fake1",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      }
     },
-    myCurrentClientId : undefined,
+    myCurrentClientId : "fake1",
     myDataSet : {
-      // "fake0" : [{
-      //   type : "IN",
-      //   ams  : Date.now(),
-      //   time : WST.formatDate(new Date()),
-      //   raw  : "abc",
-      //   hex  : false, 
-      //   str  : "hello", 
-      //   strDisplay : "hello", 
-      //   hexCode : "A0BBCCDEFA"
-      // }]
+      "fake1" : [{
+        type : "IN",
+        ams  : Date.now(),
+        time : WST.formatDate(new Date()),
+        raw  : "abc",
+        hex  : false, 
+        str  : "hello", 
+        strDisplay : "hello", 
+        hexCode : "A0BBCCDEFA"
+      }]
     }
   }),
   props: {
@@ -197,10 +214,27 @@ export default {
         ? "自动为消息添加换行符 \\r\\n"
         : "点击后，会自动为消息添加换行符 \\r\\n"
     },
+    EchoBackTip() {
+        return this.myEchoBack
+          ? "收到客户端消息后，自动回显"
+          : "点击后，将打开自动回显"
+    },
     ShowLineHexTip() {
       return this.myShowLineHex
         ? "日志面板同时显示16进制编码消息，点击即可隐藏它们"
         : "点击后，日志面板会同时显示16进制编码消息"
+    },
+    LogOrderIcon() {
+      if('ASC' == this.myLogOrder) {
+        return "fas fa-sort-amount-down-alt"
+      }
+      return "fas fa-sort-amount-up"
+    },
+    LogOrderTip() {
+      if('ASC' == this.myLogOrder) {
+        return "日志行按照从早到晚顺序排列"
+      }
+      return "日志行按照从晚到早顺序排列"
     },
     TheClientList() {
       let list = []
@@ -336,6 +370,21 @@ export default {
             type : "IN",
             client, data, hex
           })
+
+          // 自动回显
+          if(this.myEchoBack) {
+            let msg = {
+              "action" : "sendc",
+              "data"   : data,
+              "hex"    : hex,
+              "client" : client
+            }
+            this.send(msg)
+            this.pushToCurrentData({
+              type : "OUT",
+              client, data, hex
+            })
+          }
         },
         error : ({msg})=> {
           this.myErrMsg = msg
@@ -384,17 +433,46 @@ export default {
       }
 
       let now = new Date()
-      list.push({
+      let logIt = {
         type,
         ams  : now.getTime(),
         time : WST.formatDate(now),
         raw  : data,
         hex, str, hexCode,
         strDisplay
-      })
+      }
 
-      this.$nextTick(()=>{
-        this.scrollLogToBottom()
+      // 插入
+      if('ASC' == this.myLogOrder) {
+        list.push(logIt)
+      } else {
+        list.splice(0, 0, logIt)
+      }
+
+      // 正序的话，需要自动滚屏
+      if('ASC' == this.myLogOrder) {
+        this.$nextTick(()=>{
+          this.scrollLogToBottom()
+        })
+      }
+    },
+    sortLogData() {
+      _.forEach(this.myDataSet, (list, k)=> {
+        if(_.isEmpty(list)) {
+          return
+        }
+        // 正序
+        if('ASC' == this.myLogOrder) {
+          list.sort((v1, v2) => {
+            return v1.ams - v2.ams
+          })
+        }
+        // 倒序 
+        else {
+          list.sort((v1, v2) => {
+            return v2.ams - v1.ams
+          })
+        }
       })
     },
     scrollLogToBottom() {
@@ -429,7 +507,9 @@ export default {
       let json = JSON.stringify({
         useHex : this.myUseHex,
         useNL  : this.myUseNL,
-        showLineHex : this.myShowLineHex
+        showLineHex : this.myShowLineHex,
+        echoBack : this.myEchoBack,
+        logOrder : this.myLogOrder
       })
       localStorage.setItem("LUATOS_WST_SETTINGS", json)
     },
@@ -449,7 +529,12 @@ export default {
   watch : {
     "myUseHex" : "saveSettings",
     "myUseNL" : "saveSettings",
-    "myShowLineHex" : "saveSettings"
+    "myShowLineHex" : "saveSettings",
+    "myEchoBack" : "saveSettings",
+    "myLogOrder" : function(){
+      this.saveSettings()
+      this.sortLogData()
+    },
   },
   mounted() {
     let json = localStorage.getItem("LUATOS_WST_SETTINGS") || "{}"
@@ -457,11 +542,15 @@ export default {
     _.defaults(settings, {
       useHex : false,
       useNL  : false,
-      showLineHex : true
+      showLineHex : true,
+      echoBack : false,
+      logOrder : "ASC"
     })
     this.myUseHex = settings.useHex
     this.myUseNL = settings.useNL
     this.myShowLineHex = settings.showLineHex
+    this.myEchoBack = settings.echoBack
+    this.myLogOrder = settings.logOrder
   },
   beforeDestroied() {
     this.OnClickClosed()
