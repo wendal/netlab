@@ -13,16 +13,22 @@
       <aside>
         <a 
           target="_blank" 
-          href="https://gitee.com/openLuat/LuatOS/issues"
+          href="https://github.com/chenxuuu/llcom"
           data-balloon-pos="down-right"
-          aria-label="使用中遇到任何🕷️问题🕷️，就尽情给我们反馈吧 😺">
-          <i class="fas fa-bug"></i>反馈问题</a>
+          aria-label="可运行lua脚本的高自由度串口调试工具🛠。">
+          <i class="fas fa-tools"></i>串口助手llcom</a>
         <i :class="ConnectIcon"></i>
         <template v-if="isClosed">
           <button @click="OnClickConnect('tcp')">申请(TCP)</button>
           <button @click="OnClickConnect('udp')">申请(UDP)</button>
         </template>
         <button v-else @click="OnClickClosed">断开连接</button>
+        <a 
+          target="_blank" 
+          href="https://gitee.com/openLuat/LuatOS/issues"
+          data-balloon-pos="down-right"
+          aria-label="使用中遇到任何🕷️问题🕷️，就尽情给我们反馈吧 😺">
+          <i class="fas fa-bug"></i>反馈问题</a>
       </aside>
     </header>
     <pre class="as-error" v-if="isError">{{myErrMsg}}</pre>

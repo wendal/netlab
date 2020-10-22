@@ -28,8 +28,8 @@
   }
   aside {
     a {
-      font-size: 12px; color:#0FF;
-      i {text-decoration: none; margin-right:.5em;}
+      font-size: 12px; color:#0FF; margin:0 .5em;
+      i {text-decoration: none; margin-right:.3em;}
       &:hover {color:#FF0;}
     }
     > i {font-size: 1.2em; margin:0 .5em;}
