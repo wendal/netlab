@@ -3,7 +3,7 @@
     :class="TopClass">
     <header>
       <h1>
-        LuatOS 网络测试工具
+        {{i18n['wst-title']}}
         <em v-if="myClientPort>0">112.125.89.8:{{myClientPort}}</em>
         <u v-if="myLastHB">
           <i class="fas fa-heartbeat"></i>
@@ -15,20 +15,20 @@
           target="_blank" 
           href="https://github.com/chenxuuu/llcom"
           data-balloon-pos="down-right"
-          aria-label="可运行lua脚本的高自由度串口调试工具🛠。">
-          <i class="fas fa-tools"></i>串口助手llcom</a>
+          :aria-label="i18n['wst-llcom-tip']">
+          <i class="fas fa-tools"></i>{{i18n['wst-llcom-text']}}</a>
         <i :class="ConnectIcon"></i>
         <template v-if="isClosed">
-          <button @click="OnClickConnect('tcp')">申请(TCP)</button>
-          <button @click="OnClickConnect('udp')">申请(UDP)</button>
+          <button @click="OnClickConnect('tcp')">{{i18n['wst-connect-tcp']}}</button>
+          <button @click="OnClickConnect('udp')">{{i18n['wst-connect-udp']}}</button>
         </template>
-        <button v-else @click="OnClickClosed">断开连接</button>
+        <button v-else @click="OnClickClosed">{{i18n['wst-connect-close']}}</button>
         <a 
           target="_blank" 
           href="https://gitee.com/openLuat/LuatOS/issues"
           data-balloon-pos="down-right"
-          aria-label="使用中遇到任何🕷️问题🕷️，就尽情给我们反馈吧 😺">
-          <i class="fas fa-bug"></i>反馈问题</a>
+          :aria-label="i18n['wst-bug-tip']">
+          <i class="fas fa-bug"></i>{{i18n['wst-bug-text']}}</a>
       </aside>
     </header>
     <pre class="as-error" v-if="isError">{{myErrMsg}}</pre>
@@ -46,7 +46,7 @@
               <span
                 v-if="cl.connected && cl.current"
                   data-balloon-pos="right"
-                  aria-label="点击断开客户端连接"
+                  :aria-label="i18n['wst-client-close-tip']"
                   @click.left="OnCloseClient(cl)"
                   ><i class="fas fa-wifi"></i></span>
               <i
@@ -64,7 +64,7 @@
           </li>
         </ul>
         <blockquote v-else>
-          未侦测到连接的设备
+          {{i18n['wst-client-empty']}}
         </blockquote>
       </nav>
       <main>
@@ -74,7 +74,7 @@
             data-balloon-pos="up-left"
             :aria-label="UseHexTip"
             @click.left="myUseHex=!myUseHex">HEX</div>
-          <input placeholder="发送消息" spellcheck="fase"
+          <input :placeholder="i18n['wst-send-tip']" spellcheck="fase"
             ref="input"
             :readonly="!isCanSendData"
             @change="OnSendMsg"/>
@@ -114,6 +114,7 @@
             class="echo-back" 
             :class="{'is-on':myEchoBack}"
             data-balloon-pos="left"
+            data-balloon-length="medium"
             :aria-label="EchoBackTip"
             @click.left="myEchoBack=!myEchoBack">
             <i class="fas fa-retweet"></i>
@@ -131,12 +132,15 @@
 </template>
 
 <script>
-import WST from "../support/util.js"
+import WST  from "../support/util.js"
+import i18n from "../i18n/current.js"
 import _ from 'lodash'
 
 export default {
   name : 'WstMain',
   data : ()=>({
+    // 多国语言
+    i18n,
     // 心跳的句柄
     HBI : undefined,
     myLastHB : undefined,
@@ -212,23 +216,23 @@ export default {
     },
     UseHexTip() {
       return this.myUseHex
-        ? "消息内容为16进制编码"
-        : "消息内容为纯文本"
+        ? this.i18n['wst-use-hex-on-tip']
+        : this.i18n['wst-use-hex-off-tip']
     },
     UseNLTip() {
       return this.myUseNL
-        ? "自动为消息添加换行符 \\r\\n"
-        : "点击后，会自动为消息添加换行符 \\r\\n"
+        ? this.i18n['wst-use-nl-on-tip']
+        : this.i18n['wst-use-nl-off-tip']
     },
     EchoBackTip() {
-        return this.myEchoBack
-          ? "收到客户端消息后，自动回显"
-          : "点击后，将打开自动回显"
+      return this.myEchoBack
+        ? this.i18n['wst-use-eb-on-tip']
+        : this.i18n['wst-use-eb-off-tip']
     },
     ShowLineHexTip() {
       return this.myShowLineHex
-        ? "日志面板同时显示16进制编码消息，点击即可隐藏它们"
-        : "点击后，日志面板会同时显示16进制编码消息"
+        ? this.i18n['wst-show-hex-on-tip']
+        : this.i18n['wst-show-hex-off-tip']
     },
     LogOrderIcon() {
       if('ASC' == this.myLogOrder) {
@@ -238,9 +242,9 @@ export default {
     },
     LogOrderTip() {
       if('ASC' == this.myLogOrder) {
-        return "日志行按照从早到晚顺序排列"
+        return this.i18n['wst-log-asc-tip']
       }
-      return "日志行按照从晚到早顺序排列"
+      return this.i18n['wst-log-desc-tip']
     },
     TheClientList() {
       let list = []
@@ -402,6 +406,7 @@ export default {
       }
     },
     pushToCurrentData({type="IN", client, data, hex}) {
+      console.log(data)
       let list = _.get(this.myDataSet, client)
       if(!_.isArray(list)) {
         list = []
@@ -425,16 +430,20 @@ export default {
       }
 
       // Str display
-      let strDisplay = str
+      let regex = /((.+)|(\r?\n))/g
+      let strDisplay = ""
       if(str) {
-        let m = /^(.+)(\r\n)+/.exec(str)
-        if(m) {
-          let nn = parseInt(m[2].length / 2)
-          let endl = ""
-          for(let i=0; i<nn; i++) {
-            endl += "⬅️"
+        let m = regex.exec(str)
+        while(m) {
+          let s = m[2]
+          let nl = m[3]
+          if(s) {
+            strDisplay += s
           }
-          strDisplay = m[1]+endl
+          else if(nl) {
+            strDisplay += "⬅️\n"
+          }
+          m = regex.exec(str)
         }
       }
 

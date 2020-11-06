@@ -7,6 +7,7 @@
 .wstool {
   width: 100%; height:100%;
   display: flex; flex-direction: column; flex-wrap: nowrap;
+  user-select: none;
 }
 
 .wstool > header {
@@ -125,6 +126,7 @@ section {
       }
     }
     blockquote {
+      user-select: text;
       position: absolute; top:50px; left:0; right:0; bottom:0; padding: 0;
       padding: .5em; line-height: 1.6em;;
       background-color: #000; color:#FFF;
@@ -145,7 +147,9 @@ section {
           white-space: normal;
           word-wrap: break-word;
         }
-        span.as-dis {width: 50%;}
+        span.as-dis {
+          width: 50%; display: block; white-space: pre-wrap;
+        }
         span.as-hex {width: 100%; color: #0FF;}
         i {font-size: .8em; margin:0 .5em;}
         &.as-type-IN {color:#FFF;}

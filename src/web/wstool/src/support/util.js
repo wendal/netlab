@@ -1,9 +1,6 @@
 import _ from 'lodash'
 
 export default {
-  abc() {
-    console.log(_.indexOf(['A', 'B', 'C'], 'C'))
-  },
   connect({
     host, 
     onopen, onmessage, onclose, onerror
