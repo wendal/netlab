@@ -1,11 +1,16 @@
 package io.nutz.netlab.impl.tcp;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
+import org.smartboot.socket.extension.plugins.SslPlugin;
+import org.smartboot.socket.extension.ssl.ClientAuth;
 import org.smartboot.socket.transport.AioQuickServer;
 import org.smartboot.socket.transport.AioSession;
 
@@ -15,11 +20,13 @@ public class TcpPortEntity extends AbstractPortEntity {
 
 	// 日志
 	private static final Log log = Logs.get();
+	
+	protected boolean useSSL;
 
 	// 对应port的TCP服务器
 	protected AioQuickServer<byte[]> server;
 	// 已连接的客户端
-	public ConcurrentHashMap<String, AioSession<byte[]>> clients = new ConcurrentHashMap<>();
+	public ConcurrentHashMap<String, AioSession> clients = new ConcurrentHashMap<>();
 	
 	public TcpPortEntity(String id, int port, AbstractWsEndpoint endpoint) {
 		super(id, port, endpoint);
@@ -31,12 +38,32 @@ public class TcpPortEntity extends AbstractPortEntity {
 		processor.entity = this;
 		processor.endpoint = endpoint;
 		processor.monitor = monitor;
+		
+
+		if (this.useSSL) {
+			InputStream ins = null;
+			try {
+				if (new File("keystore.jks").exists()) {
+					ins = Streams.fileIn("keystore.jks");
+				}
+				else {
+					ins = getClass().getClassLoader().getResourceAsStream("keystore.jks");
+				}
+				SslPlugin<byte[]> ssl = new SslPlugin<>();
+				ssl.initForServer(ins, "123456", "123456", ClientAuth.NONE);
+				processor.addPlugin(ssl);
+			} catch (Throwable e) {
+				log.debug("SSL init error", e);
+			}
+			finally {
+				Streams.safeClose(ins);
+			}
+		}
+		
 		this.server = new AioQuickServer<>(port, protocol, processor);
 		
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
-		server.setBossShareToWorkerThreadNum(2);
-		server.setBossThreadNum(4);
-		server.setWorkerThreadNum(2);
+		//server.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)16*1024);
 
 		try {
 			server.start();
@@ -48,7 +75,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 		}
 	}
 
-	public ConcurrentHashMap<String, AioSession<byte[]>> getClients() {
+	public ConcurrentHashMap<String, AioSession> getClients() {
 		return clients;
 	}
 
@@ -62,7 +89,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 
 	@Override
 	public boolean send(String clientId, byte[] data) {
-		AioSession<byte[]> se = clients.get(clientId);
+		AioSession se = clients.get(clientId);
 		if (se != null) {
 			try {
 				se.writeBuffer().writeAndFlush(data);
@@ -82,7 +109,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 
 	@Override
 	public void closeClient(String clientId) {
-		AioSession<byte[]> client = clients.remove(clientId);
+		AioSession client = clients.remove(clientId);
 		if (client != null)
 			client.close();
 	}
@@ -103,5 +130,9 @@ public class TcpPortEntity extends AbstractPortEntity {
 			}
 		}
 		return false;
+	}
+	
+	public void setUseSSL(boolean useSSL) {
+		this.useSSL = useSSL;
 	}
 }

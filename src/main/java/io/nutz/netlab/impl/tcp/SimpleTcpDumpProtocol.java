@@ -11,7 +11,7 @@ import org.smartboot.socket.transport.AioSession;
 public class SimpleTcpDumpProtocol implements Protocol<byte[]> {
 
 	@Override
-	public byte[] decode(ByteBuffer buffer, AioSession<byte[]> session) {
+	public byte[] decode(ByteBuffer buffer, AioSession session) {
 		byte[] tmp = new byte[buffer.remaining()];
 		buffer.get(tmp);
 		return tmp;

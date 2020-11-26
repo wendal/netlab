@@ -60,6 +60,10 @@ public class NetLabService {
 		case "tcp":
 			entity = new TcpPortEntity(selfId, port, endpoint);
 			break;
+		case "ssl-tcp":
+			entity = new TcpPortEntity(selfId, port, endpoint);
+			((TcpPortEntity)entity).setUseSSL(true);
+			break;
 		case "udp":
 			entity = new UdpPortEntity(selfId, port, endpoint);
 			break;

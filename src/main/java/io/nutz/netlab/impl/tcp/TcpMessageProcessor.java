@@ -5,22 +5,22 @@ import java.net.InetSocketAddress;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
-import org.smartboot.socket.MessageProcessor;
 import org.smartboot.socket.StateMachineEnum;
+import org.smartboot.socket.extension.processor.AbstractMessageProcessor;
 import org.smartboot.socket.transport.AioSession;
 
 import com.alibaba.druid.util.HexBin;
 
 import io.nutz.netlab.service.MonitorService;
 
-public class TcpMessageProcessor implements MessageProcessor<byte[]> {
+public class TcpMessageProcessor extends AbstractMessageProcessor<byte[]> {
 
 	public TcpPortEntity entity;
 	public AbstractWsEndpoint endpoint;
 	public MonitorService monitor;
 
 	@Override
-	public void stateEvent(AioSession<byte[]> session, StateMachineEnum stateMachineEnum, Throwable throwable) {
+	public void stateEvent0(AioSession session, StateMachineEnum stateMachineEnum, Throwable throwable) {
 		NutMap re = new NutMap();
 		re.put("client", session.getSessionID());
 		switch (stateMachineEnum) {
@@ -50,7 +50,7 @@ public class TcpMessageProcessor implements MessageProcessor<byte[]> {
 	}
 
 	@Override
-	public void process(AioSession<byte[]> session, byte[] msg) {
+	public void process0(AioSession session, byte[] msg) {
 
 		// 这里是TCP客户端上传的数据, 将要发到网页端.
 		NutMap re = new NutMap();
