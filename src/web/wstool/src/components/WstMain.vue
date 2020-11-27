@@ -21,6 +21,7 @@
         <template v-if="isClosed">
           <button @click="OnClickConnect('tcp')">{{i18n['wst-connect-tcp']}}</button>
           <button @click="OnClickConnect('udp')">{{i18n['wst-connect-udp']}}</button>
+          <button @click="OnClickConnect('ssl-tcp')">{{i18n['wst-connect-tcp-ssl']}}</button>
         </template>
         <button v-else @click="OnClickClosed">{{i18n['wst-connect-close']}}</button>
         <a 
@@ -83,6 +84,10 @@
             data-balloon-pos="up-right"
             :aria-label="UseNLTip"
             @click.left="myUseNL=!myUseNL">NL</div>
+          <div
+            class="as-clr">
+            <a @click.left="ClearLog">CLR</a>
+            </div>
         </header>
         <blockquote ref="log">
           <p v-for="line of CurrentClientData"
@@ -154,34 +159,34 @@ export default {
     myClientPort : undefined,
     myErrMsg : undefined,
     myClients : {
-      // "a7305652" : {
-      //   clientId: "a7305652",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // },
-      // "fake0" : {
-      //   clientId: "fake0",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: false
-      // },
-      // "fake1" : {
-      //   clientId: "fake1",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // }
+      "a7305652" : {
+        clientId: "a7305652",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      },
+      "fake0" : {
+        clientId: "fake0",
+        addr : "/119.130.132.35:48905",
+        connected: false
+      },
+      "fake1" : {
+        clientId: "fake1",
+        addr : "/119.130.132.35:48905",
+        connected: true
+      }
     },
-    myCurrentClientId : undefined,
+    myCurrentClientId : "fake1",
     myDataSet : {
-      // "fake1" : [{
-      //   type : "IN",
-      //   ams  : Date.now(),
-      //   time : WST.formatDate(new Date()),
-      //   raw  : "abc",
-      //   hex  : false, 
-      //   str  : "hello", 
-      //   strDisplay : "hello", 
-      //   hexCode : "A0BBCCDEFA"
-      // }]
+      "fake1" : [{
+        type : "IN",
+        ams  : Date.now(),
+        time : WST.formatDate(new Date()),
+        raw  : "abc",
+        hex  : false, 
+        str  : "hello", 
+        strDisplay : "hello", 
+        hexCode : "A0BBCCDEFA"
+      }]
     }
   }),
   props: {
@@ -310,6 +315,11 @@ export default {
       console.log("hahah")
       if(this.isConnected) {
         this.$WEBS.close()
+      }
+    },
+    ClearLog() {
+      if(this.myCurrentClientId) {
+        this.myDataSet[this.myCurrentClientId] = []
       }
     },
     send(obj) {

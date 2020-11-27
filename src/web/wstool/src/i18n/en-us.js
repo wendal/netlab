@@ -4,6 +4,7 @@ export default {
   "wst-llcom-tip" : "High degree of freedom serial debugging tool for running Lua scripts🛠。",
   "wst-connect-tcp": "Open TCP",
   "wst-connect-udp": "Open UDP",
+  "wst-connect-tcp-ssl": "Open TCP-SSL",
   "wst-connect-close": "Disconnect",
   "wst-bug-tip": "Encounter any 🕷️problem🕷️, just feedback us 😺",
   "wst-bug-text": "Feedback",

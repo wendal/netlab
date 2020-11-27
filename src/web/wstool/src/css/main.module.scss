@@ -17,6 +17,7 @@
   border-bottom: 1px solid #666;
   padding: .5em;
   h1 {
+    user-select: text;
     padding:0 0 0 .5em; margin:0; font-size: 1.5em;
     em {
       font-size: 16px; font-style: normal; font-weight: normal;
@@ -113,6 +114,11 @@ section {
         display: flex; align-items: center;
         flex: 0 0 auto; padding:0 .4em;
         cursor: pointer;
+        &.as-clr {
+          padding: 0 .5em;
+          a {color: #FF0; }
+          a:hover {text-decoration: underline;}
+        }
       }
       input {
         flex:1 1 auto;

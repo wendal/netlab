@@ -4,6 +4,7 @@ export default {
   "wst-llcom-tip" : "可运行lua脚本的高自由度串口调试工具🛠。",
   "wst-connect-tcp": "打开 TCP",
   "wst-connect-udp": "打开 UDP",
+  "wst-connect-tcp-ssl": "打开 TCP SSL",
   "wst-connect-close": "断开连接",
   "wst-bug-tip": "使用中遇到任何🕷️问题🕷️，就尽情给我们反馈吧 😺",
   "wst-bug-text": "反馈问题",
