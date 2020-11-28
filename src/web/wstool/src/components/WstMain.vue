@@ -90,21 +90,23 @@
             </div>
         </header>
         <blockquote ref="log">
-          <p v-for="line of CurrentClientData"
-            :key="line.ams"
-            :class="`as-type-${line.type}`">
-            <em>[{{line.time}}]</em>
-            <!--
-            Icon
-            -->
-            <i v-if="'IN' == line.type" class="fas fa-satellite-dish"></i>
-            <i v-else class="far fa-paper-plane"></i>
-            <u v-if="line.hex">HEX</u>
-            <span class="as-dis">{{line.strDisplay}}</span>
-            <span 
-              v-if="myShowLineHex"
-                class="as-hex">{{line.hexCode}}</span>
-          </p>
+          <transition-group name="list" tag="div">
+            <p v-for="line of CurrentClientData"
+              :key="line.ams"
+              :class="`as-type-${line.type}`">
+              <em>[{{line.time}}]</em>
+              <!--
+              Icon
+              -->
+              <i v-if="'IN' == line.type" class="fas fa-satellite-dish"></i>
+              <i v-else class="far fa-paper-plane"></i>
+              <u v-if="line.hex">HEX</u>
+              <span class="as-dis">{{line.strDisplay}}</span>
+              <span 
+                v-if="myShowLineHex"
+                  class="as-hex">{{line.hexCode}}</span>
+            </p>
+          </transition-group>
         </blockquote>
         <footer>
           <div 
@@ -159,34 +161,34 @@ export default {
     myClientPort : undefined,
     myErrMsg : undefined,
     myClients : {
-      "a7305652" : {
-        clientId: "a7305652",
-        addr : "/119.130.132.35:48905",
-        connected: true
-      },
-      "fake0" : {
-        clientId: "fake0",
-        addr : "/119.130.132.35:48905",
-        connected: false
-      },
-      "fake1" : {
-        clientId: "fake1",
-        addr : "/119.130.132.35:48905",
-        connected: true
-      }
+      // "a7305652" : {
+      //   clientId: "a7305652",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: true
+      // },
+      // "fake0" : {
+      //   clientId: "fake0",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: false
+      // },
+      // "fake1" : {
+      //   clientId: "fake1",
+      //   addr : "/119.130.132.35:48905",
+      //   connected: true
+      // }
     },
-    myCurrentClientId : "fake1",
+    myCurrentClientId : undefined,
     myDataSet : {
-      "fake1" : [{
-        type : "IN",
-        ams  : Date.now(),
-        time : WST.formatDate(new Date()),
-        raw  : "abc",
-        hex  : false, 
-        str  : "hello", 
-        strDisplay : "hello", 
-        hexCode : "A0BBCCDEFA"
-      }]
+      // "fake1" : [{
+      //   type : "IN",
+      //   ams  : Date.now(),
+      //   time : WST.formatDate(new Date()),
+      //   raw  : "abc",
+      //   hex  : false, 
+      //   str  : "hello", 
+      //   strDisplay : "hello", 
+      //   hexCode : "A0BBCCDEFA"
+      // }]
     }
   }),
   props: {
@@ -288,7 +290,7 @@ export default {
       let str = _.trim(this.$refs.input.value)
       if(!str)
         return
-      console.log(str)
+      //console.log(str)
       if(this.myUseNL) {
         if(this.myUseHex) {
           str += "0D0A"
@@ -416,7 +418,7 @@ export default {
       }
     },
     pushToCurrentData({type="IN", client, data, hex}) {
-      console.log(data)
+      //console.log(data)
       let list = _.get(this.myDataSet, client)
       if(!_.isArray(list)) {
         list = []
