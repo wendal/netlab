@@ -61,6 +61,7 @@ public class NetLabService {
 			entity = new TcpPortEntity(selfId, port, endpoint);
 			break;
 		case "ssl-tcp":
+		case "tcp_ssl":
 			entity = new TcpPortEntity(selfId, port, endpoint);
 			((TcpPortEntity)entity).setUseSSL(true);
 			break;

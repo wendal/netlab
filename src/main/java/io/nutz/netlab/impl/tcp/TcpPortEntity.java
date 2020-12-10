@@ -3,12 +3,14 @@ package io.nutz.netlab.impl.tcp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.StandardSocketOptions;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
+import org.smartboot.socket.extension.plugins.SocketOptionPlugin;
 import org.smartboot.socket.extension.plugins.SslPlugin;
 import org.smartboot.socket.extension.ssl.ClientAuth;
 import org.smartboot.socket.transport.AioQuickServer;
@@ -38,7 +40,11 @@ public class TcpPortEntity extends AbstractPortEntity {
 		processor.entity = this;
 		processor.endpoint = endpoint;
 		processor.monitor = monitor;
-		
+
+		SocketOptionPlugin<byte[]> so = new SocketOptionPlugin<>();
+		so.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)64*1024);
+		so.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		processor.addPlugin(so);
 
 		if (this.useSSL) {
 			InputStream ins = null;
@@ -64,6 +70,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 		
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
 		//server.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)16*1024);
+		//server.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
 		try {
 			server.start();
