@@ -10,6 +10,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
 import io.nutz.netlab.impl.AbstractPortEntity;
+import io.nutz.netlab.impl.mqtt.MqttPortEntity;
 import io.nutz.netlab.impl.tcp.TcpPortEntity;
 import io.nutz.netlab.impl.udp.UdpPortEntity;
 import io.nutz.netlab.ws.NetLabWsEndpoint;
@@ -67,6 +68,9 @@ public class NetLabService {
 			break;
 		case "udp":
 			entity = new UdpPortEntity(selfId, port, endpoint);
+			break;
+		case "mqtt":
+			entity = new MqttPortEntity(selfId, 0, endpoint);
 			break;
 		default:
 			log.info("bad port bind type " + type);

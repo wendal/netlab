@@ -31,16 +31,6 @@
             <groupId>org.nutz</groupId>
             <artifactId>nutzboot-starter-jetty</artifactId>
         </dependency>
-
-       <dependency>
-            <groupId>org.nutz</groupId>
-            <artifactId>nutzboot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -53,12 +43,12 @@
 		<dependency>
 			<groupId>org.smartboot.socket</groupId>
 			<artifactId>aio-core</artifactId>
-			<version>1.5.6</version>
+			<version>1.5.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.smartboot.socket</groupId>
 			<artifactId>aio-pro</artifactId>
-			<version>1.5.6</version>
+			<version>1.5.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
@@ -101,8 +91,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>

@@ -26,7 +26,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 	protected boolean useSSL;
 
 	// 对应port的TCP服务器
-	protected AioQuickServer<byte[]> server;
+	protected AioQuickServer server;
 	// 已连接的客户端
 	public ConcurrentHashMap<String, AioSession> clients = new ConcurrentHashMap<>();
 	
@@ -66,7 +66,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 			}
 		}
 		
-		this.server = new AioQuickServer<>(port, protocol, processor);
+		this.server = new AioQuickServer(port, protocol, processor);
 		
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
 		//server.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)16*1024);
@@ -86,11 +86,11 @@ public class TcpPortEntity extends AbstractPortEntity {
 		return clients;
 	}
 
-	public AioQuickServer<byte[]> getServer() {
+	public AioQuickServer getServer() {
 		return server;
 	}
 
-	public void setServer(AioQuickServer<byte[]> server) {
+	public void setServer(AioQuickServer server) {
 		this.server = server;
 	}
 

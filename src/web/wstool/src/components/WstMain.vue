@@ -217,7 +217,7 @@ export default {
   props: {
     wsHost: {
       type: String,
-      default: "//netlab.vue2.cn/ws/netlab",
+      default: "//netlab.luatos.com/ws/netlab",
     },
   },
   computed: {
