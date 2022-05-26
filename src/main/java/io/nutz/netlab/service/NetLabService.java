@@ -45,9 +45,17 @@ public class NetLabService {
 	/**
 	 * 新建一个连接实例,必须传入一个唯一的id
 	 */
-	public AbstractPortEntity newPort(String selfId, String type) {
+	public AbstractPortEntity newPort(String selfId, String type, int forcePort) {
 		// 弹出一个可用端口
-		Integer port = portManager.take();
+		Integer port;
+		
+		if (forcePort > 0 && portManager.take(forcePort)) {
+			port = Integer.valueOf(forcePort);
+		}
+		else {
+			port = portManager.take();
+		}
+
 		if (port == null) {
 			// 全部端口都用完了!!
 			log.warn("all port used!");

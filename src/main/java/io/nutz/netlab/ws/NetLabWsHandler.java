@@ -27,7 +27,12 @@ public class NetLabWsHandler extends SimpleWsHandler {
 		if (entity != null) {
 			return;
 		}
-		entity = netLabService.newPort(id, req.getString("type", "tcp"));
+		String token = req.getString("token");
+		int port = req.getInt("port");
+		if (!"LuatOS-NetLab".equals(token)) {
+			port = -1;
+		}
+		entity = netLabService.newPort(id, req.getString("type", "tcp"), port);
 		if (entity == null) {
 			endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "alloc port fail"));
 		} else {

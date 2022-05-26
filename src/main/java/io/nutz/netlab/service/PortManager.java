@@ -45,6 +45,15 @@ public class PortManager {
 		log.debug("借出端口 " + port);
 		return port;
 	}
+	
+	public boolean take(int port) {
+		boolean ret = avaiPorts.remove(Integer.valueOf(port));
+		if (ret) {
+			log.debug("借出端口 " + port + " (指定)");
+		}
+		
+		return ret;
+	}
 
 	/**
 	 * 返还一个端口,必须在范围内
