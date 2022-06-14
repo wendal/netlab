@@ -99,13 +99,18 @@ export default {
     return list.join("");
   },
   isIPv4(ip) {
-    var re =
+    let re =
       /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
     return re.test(ip);
   },
-  isIPv6(ip) {
-    var re =
-      /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
-    return re.test(ip);
+  filterHexStr(str = "") {
+    let hex = [];
+    for (let i = 0; i < str.length; i++) {
+      let c = str[i];
+      if (/[a-fA-F0-9]/.test(c)) {
+        hex.push(c);
+      }
+    }
+    return hex.join("");
   },
 };

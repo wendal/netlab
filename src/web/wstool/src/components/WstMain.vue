@@ -189,26 +189,26 @@ export default {
       //   addr : "/119.130.132.35:48905",
       //   connected: true
       // },
-      fake0: {
-        clientId: "fake0",
-        addr: "/119.130.132.35:48905",
-        connected: false,
-      },
-      fake1: {
-        clientId: "fake1",
-        addr: "119.130.132.35",
-        connected: false,
-      },
-      fake2: {
-        clientId: "fake2",
-        addr: "[::ffff:116.235.36.26]:2993",
-        connected: true,
-      },
-      fake3: {
-        clientId: "fake3",
-        addr: "::ffff:116.235.36.26",
-        connected: true,
-      },
+      // fake0: {
+      //   clientId: "fake0",
+      //   addr: "/119.130.132.35:48905",
+      //   connected: false,
+      // },
+      // fake1: {
+      //   clientId: "fake1",
+      //   addr: "119.130.132.35",
+      //   connected: false,
+      // },
+      // fake2: {
+      //   clientId: "fake2",
+      //   addr: "[::ffff:116.235.36.26]:2993",
+      //   connected: true,
+      // },
+      // fake3: {
+      //   clientId: "fake3",
+      //   addr: "::ffff:116.235.36.26",
+      //   connected: true,
+      // },
     },
     myCurrentClientId: undefined,
     myDataSet: {
@@ -353,9 +353,19 @@ export default {
       }
       let str = _.trim(this.$refs.input.value);
       if (!str) return;
-      //console.log(str)
+
+      if (this.myUseHex) {
+        // 过滤非法字符
+        let str2 = WST.filterHexStr(str);
+        if (str2 != str) {
+          alert("内容不符合 HEX 格式要求, 请修正后再发送");
+          return;
+        }
+      }
+
       if (this.myUseNL) {
         if (this.myUseHex) {
+          // 拼接头部
           str += "0D0A";
         } else {
           str += "\r\n";
