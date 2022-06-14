@@ -189,16 +189,26 @@ export default {
       //   addr : "/119.130.132.35:48905",
       //   connected: true
       // },
-      // "fake0" : {
-      //   clientId: "fake0",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: false
-      // },
-      // "fake1" : {
-      //   clientId: "fake1",
-      //   addr : "/119.130.132.35:48905",
-      //   connected: true
-      // }
+      fake0: {
+        clientId: "fake0",
+        addr: "/119.130.132.35:48905",
+        connected: false,
+      },
+      fake1: {
+        clientId: "fake1",
+        addr: "119.130.132.35",
+        connected: false,
+      },
+      fake2: {
+        clientId: "fake2",
+        addr: "[::ffff:116.235.36.26]:2993",
+        connected: true,
+      },
+      fake3: {
+        clientId: "fake3",
+        addr: "::ffff:116.235.36.26",
+        connected: true,
+      },
     },
     myCurrentClientId: undefined,
     myDataSet: {
@@ -288,11 +298,34 @@ export default {
       let list = [];
       _.forEach(this.myClients, (it) => {
         let li = _.cloneDeep(it);
+        let isIPv4 = false;
+        // ipv4
         let m = /\/?([^:]+)(:(\d+))?/.exec(li.addr);
-        if (m) {
+        if (m && m[1] && WST.isIPv4(m[1])) {
+          isIPv4 = true;
+          console.log("# IPV4 #");
+          console.log("IP: " + m[1]);
+          console.log("Port: " + m[3] || "默认");
           li.addrHost = _.trim(m[1]);
           li.addrPort = _.trim(m[3]);
         }
+        // ipv6
+        if (!isIPv4) {
+          let lc = li.addr.indexOf("[");
+          let rc = li.addr.indexOf("]");
+          console.log("# IPV6 #");
+          if (lc > -1 && rc > -1) {
+            li.addrHost = li.addr.substr(lc + 1, rc - 1);
+            if (li.addr.length > rc && li.addr[rc + 1] == ":") {
+              li.addrPort = li.addr.substr(rc + 2);
+            }
+          } else {
+            li.addrHost = li.addr;
+          }
+          console.log("IP: " + li.addrHost);
+          console.log("Port: " + li.addrPort || "默认");
+        }
+
         li.data = _.get(this.myDataSet, it.clientId) || [];
         li.current = this.myCurrentClientId == it.clientId;
         li.className = {
