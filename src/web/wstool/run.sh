@@ -22,6 +22,7 @@ if [ "$mode" == "build" ];then
 
     if [ "$target" == "cn" ];then
       cp src/i18n/zh-cn.js src/i18n/current.js
+      npm run build
       cp -r dist/* ../../main/resources/static/
     fi
 fi
