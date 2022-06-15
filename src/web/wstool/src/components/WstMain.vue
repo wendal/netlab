@@ -104,6 +104,11 @@
           <div class="as-clr">
             <a @click.left="ClearLog">CLR</a>
           </div>
+          <div class="send-btn">
+            <button :disabled="!isCanSendData" @click="OnSendMsg">
+              {{ i18n["wst-send-btn"] }}
+            </button>
+          </div>
         </header>
         <blockquote ref="log">
           <transition-group name="list" tag="div">

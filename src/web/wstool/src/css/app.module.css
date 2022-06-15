@@ -19,9 +19,12 @@ button {
   color: #FFF;
   outline: none;
   border: 0;
-  cursor: pointer; }
-  button:hover {
+  cursor: pointer; 
+}
+
+button:hover {
     background: #AAA;
-    color: #FF0; }
+    color: #FF0; 
+}
 
 /*# sourceMappingURL=app.module.css.map */
