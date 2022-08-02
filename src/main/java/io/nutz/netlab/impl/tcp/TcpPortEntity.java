@@ -131,7 +131,6 @@ public class TcpPortEntity extends AbstractPortEntity {
 					if (server != null) {
 						server.shutdown();
 						server = null;
-						return true;
 					}
 				} catch (Throwable e) {
 					log.info("something happen", e);
@@ -153,6 +152,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				log.info("something happen", e);
 			}
 			this.clients.clear();
+			return true;
 		}
 		return false;
 	}
