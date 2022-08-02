@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.StandardSocketOptions;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.nutz.lang.Streams;
@@ -133,8 +134,25 @@ public class TcpPortEntity extends AbstractPortEntity {
 						return true;
 					}
 				} catch (Throwable e) {
+					log.info("something happen", e);
 				}
 			}
+			// 关闭客户端
+			try {
+				HashMap<String, AioSession> clients = new HashMap<String, AioSession>(this.clients);
+				this.clients.clear();
+				for (AioSession session : clients.values()) {
+					try {
+						session.close();
+					} catch (Throwable e) {
+						log.info("something happen", e);
+					}
+				}
+			}
+			catch (Throwable e) {
+				log.info("something happen", e);
+			}
+			this.clients.clear();
 		}
 		return false;
 	}
