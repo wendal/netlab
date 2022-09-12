@@ -14,6 +14,7 @@ import org.nutz.plugins.mvc.websocket.AbstractWsEndpoint;
 import org.smartboot.socket.extension.plugins.SocketOptionPlugin;
 import org.smartboot.socket.extension.plugins.SslPlugin;
 import org.smartboot.socket.extension.ssl.ClientAuth;
+import org.smartboot.socket.extension.ssl.factory.ServerSSLContextFactory;
 import org.smartboot.socket.transport.AioQuickServer;
 import org.smartboot.socket.transport.AioSession;
 
@@ -56,8 +57,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				else {
 					ins = getClass().getClassLoader().getResourceAsStream("keystore.jks");
 				}
-				SslPlugin<byte[]> ssl = new SslPlugin<>();
-				ssl.initForServer(ins, "123456", "123456", ClientAuth.NONE);
+				SslPlugin<byte[]> ssl = new SslPlugin<byte[]>(new ServerSSLContextFactory(ins, "123456", "123456"), ClientAuth.NONE);
 				processor.addPlugin(ssl);
 			} catch (Throwable e) {
 				log.debug("SSL init error", e);
