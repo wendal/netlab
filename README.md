@@ -2,10 +2,29 @@
 
 ## 功能简介
 
-TODO
+一句话, 给你一个随机的外网端口, 用于测试TCP/UDP链接
+
+测试地址: https://netlab.luatos.com
+
+TODO:
+1. 支持 mqtt
+2. 支持 quic
+
+计划完成时间? 猴年马月
+
+## 基本原理
+
+不知道 ^_^, 自己翻源码吧.
+
+## 我想XXX
+
+1. 发现bug? 欢迎pull request
+2. 有开发需求? 欢迎 pull request
+3. 不会部署?源码讲解? 自助吧
 
 ## 源码说明
-本压缩包是一个maven工程, eclipse/idea均可按maven项目导入
+
+一个maven工程, eclipse/idea均可按maven项目导入
 
 MainLauncher是入口,启动即可
 
