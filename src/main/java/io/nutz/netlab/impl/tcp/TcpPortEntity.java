@@ -67,7 +67,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 			}
 		}
 		
-		this.server = new AioQuickServer(port, protocol, processor);
+		this.server = new AioQuickServer("::", port, protocol, processor);
 		
 		server.setBannerEnabled(false); // 禁止打印bannder,不然好多日志
 		//server.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)16*1024);

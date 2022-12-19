@@ -143,7 +143,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 		try {
 			dc = DatagramChannel.open();
 			dc.configureBlocking(false);
-			dc.socket().bind(new InetSocketAddress(port));
+			dc.socket().bind(new InetSocketAddress("::", port));
 			selector = Selector.open();
 			dc.register(selector, SelectionKey.OP_READ);
 			thread = new Thread(this);
