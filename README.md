@@ -28,6 +28,20 @@ TODO:
 
 MainLauncher是入口,启动即可
 
+**注意**
+
+自行部署要公网IP和域名, 且修改如下文件中的后端地址
+
+文件路径: src\web\wstool\src\components
+```
+default: "//netlab.luatos.com/ws/netlab",
+```
+
+修改成你自己的域名, 要**公网可访问的**!!
+
+然后重新编译前端代码.
+
+
 ## 环境要求
 
 * 必须JDK8+
