@@ -45,7 +45,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 		try {
 			dc.send(ByteBuffer.wrap(data), client.addr);
 			client.stat.addTx(data.length);
-			monitor.incr("tx:udp", data.length);
+			monitor.data.labelValues("udp", "tx").inc(data.length);
 			return true;
 		} catch (IOException e) {
 			log.debug("发送数据到客户端失败", e);
@@ -77,6 +77,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 				e.printStackTrace();
 			}
 			dc = null;
+			monitor.client.labelValues("udp").dec(clients.size());
 			return true;
 		}
 		return false;
@@ -113,7 +114,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 							re.put("addr", ip + ":" + port);
 							endpoint.sendJsonSync(this.id, re);
 							re.remove("addr");
-							monitor.incr("newc:udp", 1);
+							monitor.client.labelValues("udp").inc();
 						}
 						// 通知网页端
 						NutMap re = new NutMap();
@@ -123,7 +124,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 						client.stat.addTx(buf.limit());
 						re.put("data", HexBin.encode(buff, true, buf.limit()));
 						re.put("hex", true);
-						monitor.incr("rx:udp", buf.limit());
+						monitor.data.labelValues("udp", "rx").inc(buf.limit());
 						endpoint.sendJsonSync(this.id, re);
 					}
 

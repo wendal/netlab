@@ -256,6 +256,7 @@ public class SslAsynchronousSocketChannel extends AsynchronousSocketChannelProxy
                         logger.info("doWrap BUFFER_UNDERFLOW");
                         break;
                     case CLOSED:
+                    	netWriteBuffer.clean();
                     	logger.warn("doWrap Result:" + result.getStatus());
                     	break;
                     default:

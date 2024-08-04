@@ -50,9 +50,20 @@
 			<artifactId>aio-pro</artifactId>
 			<version>1.5.23</version>
 		</dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>prometheus-metrics-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutzboot-starter-redis</artifactId>
+    		<groupId>io.prometheus</groupId>
+    		<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
+    		<version>1.0.0</version>
 		</dependency>
     </dependencies>
     <repositories>

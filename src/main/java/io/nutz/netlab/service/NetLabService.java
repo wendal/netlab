@@ -10,7 +10,6 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
 import io.nutz.netlab.impl.AbstractPortEntity;
-import io.nutz.netlab.impl.mqtt.MqttPortEntity;
 import io.nutz.netlab.impl.tcp.TcpPortEntity;
 import io.nutz.netlab.impl.udp.UdpPortEntity;
 import io.nutz.netlab.ws.NetLabWsEndpoint;
@@ -48,7 +47,7 @@ public class NetLabService {
 	public AbstractPortEntity newPort(String selfId, String type, int forcePort) {
 		// 弹出一个可用端口
 		Integer port;
-		
+		monitor.port_req_total.labelValues(type).inc();
 		if (forcePort > 0 && portManager.take(forcePort)) {
 			port = Integer.valueOf(forcePort);
 		}
@@ -77,9 +76,6 @@ public class NetLabService {
 		case "udp":
 			entity = new UdpPortEntity(selfId, port, endpoint);
 			break;
-		case "mqtt":
-			entity = new MqttPortEntity(selfId, 0, endpoint);
-			break;
 		default:
 			log.info("bad port bind type " + type);
 			return null;
@@ -87,15 +83,16 @@ public class NetLabService {
 		entity.setMonitor(monitor);
 		// GO,启动监听
 		if (entity.start()) {
-
 		} else {
 			portManager.recycle(port); // 返还port
+			monitor.port_req_total.labelValues("error", type).inc();
 			return null;
 		}
 		// 创建成功了, 记录之
 		entites.put(port, entity);
 		// 记录历史
-		monitor.incr("bop", 1);
+		monitor.port_req_total.labelValues("ok", type).inc();
+		monitor.port_used.labelValues(type).inc();
 		return entity;
 	}
 
@@ -111,7 +108,7 @@ public class NetLabService {
 			// 回收port
 			portManager.recycle(port);
 			// 记录历史
-			monitor.incr("bip", 1);
+			monitor.port_used.labelValues("used").dec();
 		}
 	}
 }

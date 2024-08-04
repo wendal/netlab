@@ -9,7 +9,7 @@ import org.nutz.mvc.annotation.Ok;
 
 import io.nutz.netlab.service.MonitorService;
 
-@IocBean(create = "init", depose = "depose")
+@IocBean
 public class MainLauncher {
 
 	@Inject
@@ -21,14 +21,6 @@ public class MainLauncher {
 	@At("/")
 	@Ok("->:/index.html")
 	public void index() {
-	}
-
-	public void init() {
-		// nop
-	}
-
-	public void depose() {
-		// nop
 	}
 
 	public static void main(String[] args) throws Exception {

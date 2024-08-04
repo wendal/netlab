@@ -34,15 +34,15 @@ public class TcpMessageProcessor extends AbstractMessageProcessor<byte[]> {
 			} catch (IOException e) {
 				// 不太可能出错吧
 			}
-			monitor.incr("newc:tcp", 1);
+			monitor.client.labelValues("tcp").inc();
 			endpoint.sendJsonSync(entity.getId(), re);
 			break;
 		case SESSION_CLOSED:
 			entity.clients.remove(session.getSessionID());
 			// 通知网页端
 			re.put("action", "closed");
-			monitor.incr("clsc:tcp", 1);
 			endpoint.sendJsonSync(entity.getId(), re);
+			monitor.client.labelValues("tcp").dec();
 			break;
 		default:
 			break;
@@ -64,7 +64,7 @@ public class TcpMessageProcessor extends AbstractMessageProcessor<byte[]> {
 
 		// 更新统计信息
 		session.stat.addRx(msg.length);
-		monitor.incr("rx:tcp", msg.length);
+		monitor.data.labelValues("tcp", "rx").inc(msg.length);
 
 		// 广播到其他客户端
 		if (entity.isBroadcast()) {

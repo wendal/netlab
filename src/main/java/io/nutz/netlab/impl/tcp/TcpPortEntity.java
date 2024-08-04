@@ -103,7 +103,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				se.writeBuffer().writeAndFlush(data);
 				// 更新统计信息
 				se.stat.addTx(data.length);
-				monitor.incr("tx:tcp", data.length);
+				monitor.data.labelValues("tcp", "tx").inc(data.length);
 				return true;
 			} catch (IOException e) {
 				log.debug("发送数据到客户端失败了", e);
@@ -118,8 +118,10 @@ public class TcpPortEntity extends AbstractPortEntity {
 	@Override
 	public void closeClient(String clientId) {
 		AioSession client = clients.remove(clientId);
-		if (client != null)
+		if (client != null) {
+			monitor.client.labelValues("tcp").dec();
 			client.close();
+		}
 	}
 
 	protected Object lock = new Object();
