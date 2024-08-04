@@ -64,7 +64,7 @@ public class TcpMessageProcessor extends AbstractMessageProcessor<byte[]> {
 
 		// 更新统计信息
 		session.stat.addRx(msg.length);
-		monitor.data.labelValues("tcp", "rx").inc(msg.length);
+		monitor.data.labelValues("tcp").inc(msg.length);
 
 		// 广播到其他客户端
 		if (entity.isBroadcast()) {

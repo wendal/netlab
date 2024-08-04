@@ -46,6 +46,11 @@ public class MonitorService {
 		port_used = Gauge.builder().name("connected_client")
 				   .labelNames("type")
 				   .register();
+		
+
+		client = Gauge.builder().name("client")
+				   .labelNames("type")
+				   .register();
 
 		JvmMetrics.builder().register();
 		httpServer = HTTPServer.builder()

@@ -85,13 +85,14 @@ public class NetLabService {
 		if (entity.start()) {
 		} else {
 			portManager.recycle(port); // 返还port
-			monitor.port_req_total.labelValues("error", type).inc();
+			monitor.port_req_total.labelValues("error").inc();
 			return null;
 		}
 		// 创建成功了, 记录之
 		entites.put(port, entity);
 		// 记录历史
-		monitor.port_req_total.labelValues("ok", type).inc();
+
+		monitor.port_req_total.labelValues("ok").inc();
 		monitor.port_used.labelValues(type).inc();
 		return entity;
 	}

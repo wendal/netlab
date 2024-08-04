@@ -103,7 +103,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				se.writeBuffer().writeAndFlush(data);
 				// 更新统计信息
 				se.stat.addTx(data.length);
-				monitor.data.labelValues("tcp", "tx").inc(data.length);
+				monitor.data.labelValues("tcp").inc(data.length);
 				return true;
 			} catch (IOException e) {
 				log.debug("发送数据到客户端失败了", e);
