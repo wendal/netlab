@@ -2,6 +2,8 @@ package io.nutz.netlab.service;
 
 import java.io.IOException;
 
+import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -25,6 +27,9 @@ public class MonitorService {
 	public Gauge client;
 	
 	HTTPServer httpServer;
+	
+	@Inject
+	protected PropertiesProxy conf;
 
 	public void init() throws IOException {
 		port_req_total = Counter.builder().name("port_req_total")
@@ -44,7 +49,7 @@ public class MonitorService {
 
 		JvmMetrics.builder().register();
 		httpServer = HTTPServer.builder()
-                .port(9400)
+                .port(conf.getInt("prometheus.http.server.port", 9400))
                 .buildAndStart();
 	}
 	
