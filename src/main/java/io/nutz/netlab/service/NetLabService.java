@@ -1,7 +1,7 @@
 package io.nutz.netlab.service;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -25,7 +25,7 @@ public class NetLabService {
 	private static final Log log = Logs.get();
 
 	// 已创建的连接实例
-	protected Map<Integer, AbstractPortEntity> entites = new HashMap<>();
+	protected Map<Integer, AbstractPortEntity> entities = new ConcurrentHashMap<>();
 
 	// 通往websocket
 	@Inject
@@ -72,6 +72,7 @@ public class NetLabService {
 		case "tcp_ssl":
 			entity = new TcpPortEntity(selfId, port, endpoint);
 			((TcpPortEntity)entity).setUseSSL(true);
+			((TcpPortEntity)entity).setSslKeystorePassword(conf.get("netlab.ssl.keystore.password", "123456"));
 			break;
 		case "udp":
 			entity = new UdpPortEntity(selfId, port, endpoint);
@@ -89,7 +90,7 @@ public class NetLabService {
 			return null;
 		}
 		// 创建成功了, 记录之
-		entites.put(port, entity);
+		entities.put(port, entity);
 		// 记录历史
 
 		monitor.port_req_total.labelValues("ok").inc();
@@ -104,7 +105,7 @@ public class NetLabService {
 		if (port < 1)
 			return;
 		// 从entities移除记录,然后关闭服务器
-		AbstractPortEntity entity = entites.remove(port);
+		AbstractPortEntity entity = entities.remove(port);
 		if (entity != null && entity.shutdown()) {
 			// 回收port
 			portManager.recycle(port);

@@ -1,10 +1,12 @@
 package io.nutz.netlab.ws;
 
+import java.nio.charset.StandardCharsets;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.handler.SimpleWsHandler;
 
-import com.alibaba.druid.util.HexBin;
+import io.nutz.netlab.HexBin;
 
 import io.nutz.netlab.impl.AbstractPortEntity;
 import io.nutz.netlab.service.NetLabService;
@@ -61,13 +63,16 @@ public class NetLabWsHandler extends SimpleWsHandler {
 				endpoint.sendJsonSync(id, new NutMap("action", "error").setv("msg", "bad hex string"));
 			}
 		} else {
-			buff = data.getBytes();
+			buff = data.getBytes(StandardCharsets.UTF_8);
 		}
 		entity.send(clientId, buff);
 	}
 
 	// 关掉指定客户端
 	public void closec(NutMap req) {
+		if (entity == null) {
+			return;
+		}
 		String clientId = req.getString("client");
 		if (!Strings.isBlank(clientId))
 			entity.closeClient(clientId);
@@ -75,6 +80,9 @@ public class NetLabWsHandler extends SimpleWsHandler {
 
 	// 配置,当前仅支持broadcast, 是否进行广播
 	public void config(NutMap req) {
+		if (entity == null) {
+			return;
+		}
 		if (req.containsKey("broadcast")) {
 			entity.setBroadcast(req.getBoolean("broadcast", false));
 		}

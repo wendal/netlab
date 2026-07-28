@@ -199,9 +199,6 @@ public class SslAsynchronousSocketChannel extends AsynchronousSocketChannelProxy
         asynchronousSocketChannel.write(netWriteBuffer.buffer(), timeout, unit, attachment, new CompletionHandler<Integer, A>() {
             @Override
             public void completed(Integer result, A attachment) {
-                if (result == -1) {
-                    System.err.println("aaaaaaaaaaa");
-                }
                 if (netWriteBuffer.buffer().hasRemaining()) {
                     asynchronousSocketChannel.write(netWriteBuffer.buffer(), timeout, unit, attachment, this);
                 } else {

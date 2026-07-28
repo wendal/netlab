@@ -26,6 +26,8 @@ public class MonitorService {
 	
 	public Gauge client;
 	
+	public Gauge connected_client;
+	
 	HTTPServer httpServer;
 	
 	@Inject
@@ -43,7 +45,7 @@ public class MonitorService {
 							   .labelNames("type")
 							   .register();
 
-		port_used = Gauge.builder().name("connected_client")
+		connected_client = Gauge.builder().name("connected_client")
 				   .labelNames("type")
 				   .register();
 		

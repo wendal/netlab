@@ -22,10 +22,20 @@ import io.nutz.netlab.service.NetLabService;
 @IocBean
 public class NetLabWsEndpoint extends AbstractWsEndpoint {
 
+	// WebSocket消息缓冲区大小: 2MB (1MB数据经Hex编码后约2MB)
+	private static final int MAX_MESSAGE_BUFFER_SIZE = 2 * 1024 * 1024;
+
 	@Inject
 	protected Ioc ioc;
 
 	protected NetLabService netLabService;
+
+	@Override
+	public void onOpen(Session session, EndpointConfig config) {
+		session.setMaxTextMessageBufferSize(MAX_MESSAGE_BUFFER_SIZE);
+		session.setMaxBinaryMessageBufferSize(MAX_MESSAGE_BUFFER_SIZE);
+		super.onOpen(session, config);
+	}
 
 	public WsHandler createHandler(Session session, EndpointConfig config) {
 		if (netLabService == null)

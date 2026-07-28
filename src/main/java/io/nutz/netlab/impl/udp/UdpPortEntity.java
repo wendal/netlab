@@ -7,9 +7,9 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -26,7 +26,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 
 	protected DatagramChannel dc;
 
-	protected Map<String, UdpClientCtx> clients = new HashMap<>();
+	protected Map<String, UdpClientCtx> clients = new ConcurrentHashMap<>();
 
 	protected Thread thread;
 
@@ -74,7 +74,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 			try {
 				dc.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.debug("udp channel close error", e);
 			}
 			dc = null;
 			monitor.client.labelValues("udp").dec(clients.size());
@@ -86,7 +86,7 @@ public class UdpPortEntity extends AbstractPortEntity implements Runnable {
 	@Override
 	public void run() {
 		log.info("开始监听UDP端口 " + port);
-		byte[] buff = new byte[1500];
+		byte[] buff = new byte[65535];
 		ByteBuffer buf = ByteBuffer.wrap(buff);
 		try {
 			while (selector.select() > 0) {

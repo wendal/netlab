@@ -27,6 +27,8 @@ public class TcpPortEntity extends AbstractPortEntity {
 	
 	protected boolean useSSL;
 
+	protected String sslKeystorePassword = "123456";
+
 	// 对应port的TCP服务器
 	protected AioQuickServer server;
 	// 已连接的客户端
@@ -44,7 +46,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 		processor.monitor = monitor;
 
 		SocketOptionPlugin<byte[]> so = new SocketOptionPlugin<>();
-		so.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)64*1024);
+		so.setOption(StandardSocketOptions.SO_SNDBUF, (Integer)1024*1024);
 		so.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		processor.addPlugin(so);
 
@@ -57,7 +59,7 @@ public class TcpPortEntity extends AbstractPortEntity {
 				else {
 					ins = getClass().getClassLoader().getResourceAsStream("keystore.jks");
 				}
-				SslPlugin<byte[]> ssl = new SslPlugin<byte[]>(new ServerSSLContextFactory(ins, "123456", "123456"), ClientAuth.NONE);
+				SslPlugin<byte[]> ssl = new SslPlugin<byte[]>(new ServerSSLContextFactory(ins, sslKeystorePassword, sslKeystorePassword), ClientAuth.NONE);
 				processor.addPlugin(ssl);
 			} catch (Throwable e) {
 				log.debug("SSL init error", e);
@@ -161,5 +163,9 @@ public class TcpPortEntity extends AbstractPortEntity {
 	
 	public void setUseSSL(boolean useSSL) {
 		this.useSSL = useSSL;
+	}
+
+	public void setSslKeystorePassword(String sslKeystorePassword) {
+		this.sslKeystorePassword = sslKeystorePassword;
 	}
 }

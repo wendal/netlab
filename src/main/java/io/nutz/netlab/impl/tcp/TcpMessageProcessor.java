@@ -9,7 +9,7 @@ import org.smartboot.socket.StateMachineEnum;
 import org.smartboot.socket.extension.processor.AbstractMessageProcessor;
 import org.smartboot.socket.transport.AioSession;
 
-import com.alibaba.druid.util.HexBin;
+import io.nutz.netlab.HexBin;
 
 import io.nutz.netlab.service.MonitorService;
 
