@@ -1,0 +1,18 @@
+[server]
+host = "127.0.0.1"
+port = 9073
+
+[port]
+start = 21000
+end   = 29000
+
+[ssl]
+cert_path = "cert/fullchain.pem"
+key_path  = "cert/privkey.pem"
+
+[metrics]
+enabled = true
+port    = 9400
+
+[app]
+static_dir = "./static"
