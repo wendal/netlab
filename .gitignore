@@ -1,3 +1,24 @@
+# Rust build artifacts
+target/
+
+# Debug config dump (generated at runtime)
+merged-config-debug.toml
+
+# Node
+node_modules/
+
+# IDE
+.idea/
+.vscode/settings.json
+*.iml
+
+# OS
+.DS_Store
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
 # Compiled class file
 *.class
 

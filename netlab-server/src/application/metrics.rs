@@ -66,11 +66,13 @@ pub mod test_util {
     //! metrics::with_local_recorder(&r, || {
     //!     metrics::counter!("foo", "type" => "tcp").increment(1.0);
     //! });
-    //! let calls = r.calls.lock().unwrap();
+    //! let calls = r.calls.lock();
     //! assert!(calls.iter().any(|c| c.name == "foo"));
     //! ```
 
-    use std::sync::{Arc, Mutex};
+    use std::sync::Arc;
+
+    use parking_lot::Mutex;
 
     use metrics::{
         Counter, CounterFn, Gauge, GaugeFn, Histogram, Key, KeyName, Metadata, Recorder,
@@ -133,7 +135,7 @@ pub mod test_util {
 
     impl CounterFn for TestCounter {
         fn increment(&self, value: u64) {
-            self.calls.lock().unwrap().push(Call {
+            self.calls.lock().push(Call {
                 name: self.key.name().to_string(),
                 labels: labels_of(&self.key),
                 value: value as f64,
@@ -142,7 +144,7 @@ pub mod test_util {
         }
 
         fn absolute(&self, value: u64) {
-            self.calls.lock().unwrap().push(Call {
+            self.calls.lock().push(Call {
                 name: self.key.name().to_string(),
                 labels: labels_of(&self.key),
                 value: value as f64,
@@ -158,7 +160,7 @@ pub mod test_util {
 
     impl GaugeFn for TestGauge {
         fn increment(&self, value: f64) {
-            self.calls.lock().unwrap().push(Call {
+            self.calls.lock().push(Call {
                 name: self.key.name().to_string(),
                 labels: labels_of(&self.key),
                 value,
@@ -167,7 +169,7 @@ pub mod test_util {
         }
 
         fn decrement(&self, value: f64) {
-            self.calls.lock().unwrap().push(Call {
+            self.calls.lock().push(Call {
                 name: self.key.name().to_string(),
                 labels: labels_of(&self.key),
                 value,
@@ -176,7 +178,7 @@ pub mod test_util {
         }
 
         fn set(&self, value: f64) {
-            self.calls.lock().unwrap().push(Call {
+            self.calls.lock().push(Call {
                 name: self.key.name().to_string(),
                 labels: labels_of(&self.key),
                 value,
@@ -198,6 +200,10 @@ mod tests {
     use super::*;
     use std::sync::OnceLock;
 
+    /// Serialize metrics tests to avoid race conditions on the shared
+    /// global recorder's `calls` buffer.
+    static TEST_LOCK: parking_lot::Mutex<()> = parking_lot::Mutex::new(());
+
     fn find<'a>(calls: &'a [Call], name: &str) -> Vec<&'a Call> {
         calls.iter().filter(|c| c.name == name).collect()
     }
@@ -218,10 +224,11 @@ mod tests {
 
     #[test]
     fn on_new_port_emits_counter_and_gauge_increment() {
+        let _guard = TEST_LOCK.lock();
         let r = install_global_recorder_once();
-        r.calls.lock().unwrap().clear();
+        r.calls.lock().clear();
         on_new_port("tcp");
-        let calls = r.calls.lock().unwrap();
+        let calls = r.calls.lock();
         let counter = find(&calls, MetricsSpec::PORT_REQ_TOTAL);
         let gauge = find(&calls, MetricsSpec::PORT_USED);
         assert_eq!(counter.len(), 1, "PORT_REQ_TOTAL should fire once");
@@ -237,10 +244,11 @@ mod tests {
 
     #[test]
     fn on_close_port_decrements_gauge() {
+        let _guard = TEST_LOCK.lock();
         let r = install_global_recorder_once();
-        r.calls.lock().unwrap().clear();
+        r.calls.lock().clear();
         on_close_port("udp");
-        let calls = r.calls.lock().unwrap();
+        let calls = r.calls.lock();
         let g = find(&calls, MetricsSpec::PORT_USED);
         assert_eq!(g.len(), 1);
         assert_eq!(g[0].op, Op::Decrement);
@@ -250,10 +258,11 @@ mod tests {
 
     #[test]
     fn on_data_increments_counter_by_byte_count() {
+        let _guard = TEST_LOCK.lock();
         let r = install_global_recorder_once();
-        r.calls.lock().unwrap().clear();
+        r.calls.lock().clear();
         on_data("ssl-tcp", 42);
-        let calls = r.calls.lock().unwrap();
+        let calls = r.calls.lock();
         let c = find(&calls, MetricsSpec::DATA_TOTAL);
         assert_eq!(c.len(), 1);
         assert_eq!(c[0].value, 42.0);
@@ -265,20 +274,22 @@ mod tests {
 
     #[test]
     fn on_client_open_bumps_both_client_gauges() {
+        let _guard = TEST_LOCK.lock();
         let r = install_global_recorder_once();
-        r.calls.lock().unwrap().clear();
+        r.calls.lock().clear();
         on_client_open("tcp");
-        let calls = r.calls.lock().unwrap();
+        let calls = r.calls.lock();
         assert_eq!(find(&calls, MetricsSpec::CONNECTED_CLIENT).len(), 1);
         assert_eq!(find(&calls, MetricsSpec::CLIENT).len(), 1);
     }
 
     #[test]
     fn on_client_close_decrements_both_client_gauges() {
+        let _guard = TEST_LOCK.lock();
         let r = install_global_recorder_once();
-        r.calls.lock().unwrap().clear();
+        r.calls.lock().clear();
         on_client_close("tcp");
-        let calls = r.calls.lock().unwrap();
+        let calls = r.calls.lock();
         let conn = find(&calls, MetricsSpec::CONNECTED_CLIENT);
         let total = find(&calls, MetricsSpec::CLIENT);
         assert_eq!(conn.len(), 1);
