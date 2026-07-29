@@ -79,8 +79,8 @@ fn load_pem_server_config(
     password: Option<&str>,
 ) -> anyhow::Result<ServerConfig> {
     // 1. Certificate chain.
-    let cert_file = File::open(cert_path)
-        .map_err(|e| anyhow::anyhow!("opening cert file {cert_path}: {e}"))?;
+    let cert_file =
+        File::open(cert_path).map_err(|e| anyhow::anyhow!("opening cert file {cert_path}: {e}"))?;
     let mut cert_reader = BufReader::new(cert_file);
     let certs: Vec<CertificateDer<'static>> = rustls_pemfile::certs(&mut cert_reader)
         .collect::<Result<Vec<_>, _>>()
@@ -90,8 +90,8 @@ fn load_pem_server_config(
     }
 
     // 2. Private key (encrypted or plain).
-    let key_file = File::open(key_path)
-        .map_err(|e| anyhow::anyhow!("opening key file {key_path}: {e}"))?;
+    let key_file =
+        File::open(key_path).map_err(|e| anyhow::anyhow!("opening key file {key_path}: {e}"))?;
     let mut key_reader = BufReader::new(key_file);
     let key: PrivateKeyDer<'static> = match password {
         Some(pw) => {
@@ -131,7 +131,10 @@ fn load_first_private_key<R: std::io::BufRead>(
     anyhow::bail!("no PKCS#8 private key found")
 }
 
-fn decrypt_pem_key(encrypted_pem: &[u8], _password: &str) -> anyhow::Result<PrivateKeyDer<'static>> {
+fn decrypt_pem_key(
+    encrypted_pem: &[u8],
+    _password: &str,
+) -> anyhow::Result<PrivateKeyDer<'static>> {
     // Limited encrypted-key support: we accept the common
     // `BEGIN ENCRYPTED PRIVATE KEY` (PKCS#8 EncryptedPrivateKeyInfo)
     // PEM but currently require the caller to convert to plain PEM
@@ -179,17 +182,16 @@ mod tests {
         let cert_pem = cert.pem();
         let key_pem = key_pair.serialize_pem();
 
-        let cert_dir = std::env::temp_dir().join(format!(
-            "netlab-tls-test-{}-cert.pem",
-            std::process::id()
-        ));
-        let key_dir = std::env::temp_dir().join(format!(
-            "netlab-tls-test-{}-key.pem",
-            std::process::id()
-        ));
+        let cert_dir =
+            std::env::temp_dir().join(format!("netlab-tls-test-{}-cert.pem", std::process::id()));
+        let key_dir =
+            std::env::temp_dir().join(format!("netlab-tls-test-{}-key.pem", std::process::id()));
         std::fs::write(&cert_dir, cert_pem).expect("write cert");
         std::fs::write(&key_dir, key_pem).expect("write key");
-        (cert_dir.to_string_lossy().into_owned(), key_dir.to_string_lossy().into_owned())
+        (
+            cert_dir.to_string_lossy().into_owned(),
+            key_dir.to_string_lossy().into_owned(),
+        )
     }
 
     #[test]
@@ -201,8 +203,7 @@ mod tests {
     #[test]
     fn from_pem_files_round_trip() {
         let (cert, key) = write_temp_pem_pair();
-        let mat = TlsMaterial::from_pem_files(&cert, &key, None)
-            .expect("load real PEM");
+        let mat = TlsMaterial::from_pem_files(&cert, &key, None).expect("load real PEM");
         let _ = &mat.acceptor;
         let _ = std::fs::remove_file(cert);
         let _ = std::fs::remove_file(key);
@@ -222,11 +223,7 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("netlab-empty-{}.pem", std::process::id()));
         std::fs::write(&dir, b"").expect("write empty");
         let (_, key) = write_temp_pem_pair();
-        let result = TlsMaterial::from_pem_files(
-            dir.to_str().unwrap(),
-            &key,
-            None,
-        );
+        let result = TlsMaterial::from_pem_files(dir.to_str().unwrap(), &key, None);
         let err = result.expect_err("must fail");
         assert!(err.to_string().contains("no certificates"));
         let _ = std::fs::remove_file(dir);

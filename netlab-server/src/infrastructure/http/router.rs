@@ -12,8 +12,8 @@
 
 use std::sync::Arc;
 
-use axum::Router;
 use axum::routing::get;
+use axum::Router;
 
 use crate::application::port_service::PortService;
 use crate::infrastructure::http::static_files::static_router;

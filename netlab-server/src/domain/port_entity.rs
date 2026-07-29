@@ -13,10 +13,7 @@ use crate::domain::port::PortNumber;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WsEvent {
     /// A new client connected on the port.
-    Connected {
-        client: ClientId,
-        addr: String,
-    },
+    Connected { client: ClientId, addr: String },
     /// Data arrived from a connected client.
     Data {
         client: ClientId,

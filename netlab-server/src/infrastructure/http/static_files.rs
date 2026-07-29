@@ -7,10 +7,10 @@
 
 use std::path::Path;
 
-use axum::Router;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::Router;
 use tower_http::services::ServeDir;
 
 /// Build the static-file sub-router.
@@ -25,17 +25,12 @@ use tower_http::services::ServeDir;
 pub fn static_router(static_dir: &str) -> Router {
     let dir = Path::new(static_dir);
     if dir.is_dir() {
-        Router::new().fallback_service(
-            ServeDir::new(dir).append_index_html_on_directories(true),
-        )
+        Router::new().fallback_service(ServeDir::new(dir).append_index_html_on_directories(true))
     } else {
         Router::new().fallback(get(missing_static_dir))
     }
 }
 
 async fn missing_static_dir() -> impl IntoResponse {
-    (
-        StatusCode::NOT_FOUND,
-        "static dir not found",
-    )
+    (StatusCode::NOT_FOUND, "static dir not found")
 }

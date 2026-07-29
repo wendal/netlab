@@ -82,7 +82,10 @@ async fn full_flow_newp_tcp_echo_and_close() {
 
     // 4. expect Connected
     let connected_frame = recv_action(&mut ws_rx, "connected").await;
-    let client_id = connected_frame["client"].as_str().expect("client id").to_string();
+    let client_id = connected_frame["client"]
+        .as_str()
+        .expect("client id")
+        .to_string();
     let addr_str = connected_frame["addr"].as_str().expect("addr").to_string();
     assert!(addr_str.contains(':'), "addr has port");
 
@@ -126,7 +129,10 @@ async fn full_flow_newp_udp_sends_datagram() {
     let client = tokio::net::UdpSocket::bind(("127.0.0.1", 0))
         .await
         .expect("udp bind");
-    client.send_to(b"abc", ("127.0.0.1", port)).await.expect("send udp");
+    client
+        .send_to(b"abc", ("127.0.0.1", port))
+        .await
+        .expect("send udp");
 
     // 3. expect Data (hex 616263)
     let data_frame = recv_action(&mut ws_rx, "data").await;
@@ -170,13 +176,9 @@ async fn heartbeat_and_bad_json_do_not_break_session() {
     ws_tx.send(Message::Close(None)).await.ok();
 }
 
-async fn recv_action<S>(
-    rx: &mut S,
-    expected: &str,
-) -> serde_json::Value
+async fn recv_action<S>(rx: &mut S, expected: &str) -> serde_json::Value
 where
-    S: futures_util::Stream<Item = Result<Message, tokio_tungstenite::tungstenite::Error>>
-        + Unpin,
+    S: futures_util::Stream<Item = Result<Message, tokio_tungstenite::tungstenite::Error>> + Unpin,
 {
     let frame = timeout(Duration::from_secs(3), async {
         loop {

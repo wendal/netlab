@@ -7,11 +7,11 @@
 
 use std::sync::Arc;
 
-use axum::Router;
-use axum::extract::State;
 use axum::extract::ws::WebSocketUpgrade;
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::Router;
 use uuid::Uuid;
 
 use crate::infrastructure::http::router::AppState;
@@ -31,10 +31,7 @@ pub fn ws_router() -> Router<Arc<AppState>> {
 /// Each upgrade receives a fresh session id. The id is used by the
 /// application layer to scope subscriptions, so concurrent WS sessions
 /// never see each other's events.
-async fn ws_upgrade(
-    State(state): State<Arc<AppState>>,
-    ws: WebSocketUpgrade,
-) -> impl IntoResponse {
+async fn ws_upgrade(State(state): State<Arc<AppState>>, ws: WebSocketUpgrade) -> impl IntoResponse {
     let session_id = Uuid::new_v4();
     ws.on_upgrade(move |socket| handle_ws_session(socket, state, session_id))
 }

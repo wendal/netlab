@@ -161,7 +161,10 @@ mod tests {
         let mut taken = std::collections::HashSet::new();
         for _ in 0..10 {
             let p = pool.take_random().expect("still has free");
-            assert!((2000..2010).contains(&p), "port {p} out of configured range");
+            assert!(
+                (2000..2010).contains(&p),
+                "port {p} out of configured range"
+            );
             assert!(taken.insert(p), "duplicate take {p}");
         }
         let err = pool.take_random().expect_err("should be empty");

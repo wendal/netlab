@@ -42,12 +42,11 @@ impl EntityFactory for DefaultEntityFactory {
         events: mpsc::UnboundedSender<WsEvent>,
     ) -> Result<Arc<dyn PortEntity>, AppError> {
         let entity: Arc<dyn PortEntity> = match kind {
-            PortType::Tcp => TcpPortEntity::start(port, false, events, None)
-                .await?
-                as Arc<dyn PortEntity>,
+            PortType::Tcp => {
+                TcpPortEntity::start(port, false, events, None).await? as Arc<dyn PortEntity>
+            }
             PortType::SslTcp => {
-                TcpPortEntity::start(port, true, events, self.tls.clone())
-                    .await?
+                TcpPortEntity::start(port, true, events, self.tls.clone()).await?
                     as Arc<dyn PortEntity>
             }
             PortType::Udp => UdpPortEntity::start(port, events).await? as Arc<dyn PortEntity>,
@@ -83,11 +82,7 @@ pub async fn run() -> anyhow::Result<()> {
     let cfg = NetlabConfig::load().context("loading config")?;
     info!(
         "netlab-server starting; http={}:{}, prom=:{}, port range={}-{}",
-        cfg.server.host,
-        cfg.server.port,
-        cfg.metrics.port,
-        cfg.port.start,
-        cfg.port.end
+        cfg.server.host, cfg.server.port, cfg.metrics.port, cfg.port.start, cfg.port.end
     );
 
     // Install Prometheus recorder. Returns the handle for the axum route.
@@ -96,19 +91,17 @@ pub async fn run() -> anyhow::Result<()> {
     // Optional TLS material for the SslTcp variant. Failures fall back to
     // a self-signed cert (see TlsMaterial::from_pem_files).
     let tls = match (&cfg.ssl.cert_path, &cfg.ssl.key_path) {
-        (Some(cert), Some(key)) => TlsMaterial::from_pem_files(
-            cert,
-            key,
-            cfg.ssl.key_password.as_deref(),
-        )
-        .or_else(|e| {
-            warn!(
-                "loading PEM TLS from {cert}/{key} failed: {e}; \
+        (Some(cert), Some(key)) => {
+            TlsMaterial::from_pem_files(cert, key, cfg.ssl.key_password.as_deref())
+                .or_else(|e| {
+                    warn!(
+                        "loading PEM TLS from {cert}/{key} failed: {e}; \
                  using self-signed cert (dev only)"
-            );
-            TlsMaterial::self_signed()
-        })
-        .ok(),
+                    );
+                    TlsMaterial::self_signed()
+                })
+                .ok()
+        }
         _ => {
             warn!("ssl.cert_path / ssl.key_path not set; using self-signed cert (dev only)");
             TlsMaterial::self_signed().ok()

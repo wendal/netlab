@@ -15,14 +15,14 @@ use netlab_server::infrastructure::tcp::entity::TcpPortEntity;
 
 const TEST_PORT: u16 = 21099;
 
-fn fresh_events() -> (mpsc::UnboundedSender<WsEvent>, mpsc::UnboundedReceiver<WsEvent>) {
+fn fresh_events() -> (
+    mpsc::UnboundedSender<WsEvent>,
+    mpsc::UnboundedReceiver<WsEvent>,
+) {
     mpsc::unbounded_channel()
 }
 
-async fn recv_within(
-    rx: &mut mpsc::UnboundedReceiver<WsEvent>,
-    dur: Duration,
-) -> Option<WsEvent> {
+async fn recv_within(rx: &mut mpsc::UnboundedReceiver<WsEvent>, dur: Duration) -> Option<WsEvent> {
     timeout(dur, rx.recv()).await.ok().flatten()
 }
 

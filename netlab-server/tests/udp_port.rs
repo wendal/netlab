@@ -17,9 +17,7 @@ use netlab_server::infrastructure::udp::entity::UdpPortEntity;
 async fn udp_connect_once_data_each() {
     // 1. Start UdpPortEntity on an ephemeral port (port 0).
     let (tx, mut rx) = mpsc::unbounded_channel::<WsEvent>();
-    let entity = UdpPortEntity::start(0, tx)
-        .await
-        .expect("start udp entity");
+    let entity = UdpPortEntity::start(0, tx).await.expect("start udp entity");
     let port = entity.port();
     assert!(port > 0, "expected ephemeral port, got {port}");
 
@@ -86,14 +84,10 @@ async fn udp_send_to_peer_roundtrip() {
     // Verifies the WS -> entity -> peer direction: send bytes via
     // `PortEntity::send` and confirm the peer actually receives them.
     let (tx, mut rx) = mpsc::unbounded_channel::<WsEvent>();
-    let entity = UdpPortEntity::start(0, tx)
-        .await
-        .expect("start udp entity");
+    let entity = UdpPortEntity::start(0, tx).await.expect("start udp entity");
     let port = entity.port();
 
-    let peer = UdpSocket::bind("127.0.0.1:0")
-        .await
-        .expect("bind peer");
+    let peer = UdpSocket::bind("127.0.0.1:0").await.expect("bind peer");
 
     // Trigger client registration by sending one datagram from the peer.
     peer.send_to(b"ping", ("127.0.0.1", port))
@@ -139,14 +133,10 @@ async fn udp_close_client_drops_registry_entry() {
     // Verifies that `close_client` removes the client but does not emit
     // any event — UDP never produces `WsEvent::Closed` (matches Java).
     let (tx, mut rx) = mpsc::unbounded_channel::<WsEvent>();
-    let entity = UdpPortEntity::start(0, tx)
-        .await
-        .expect("start udp entity");
+    let entity = UdpPortEntity::start(0, tx).await.expect("start udp entity");
     let port = entity.port();
 
-    let peer = UdpSocket::bind("127.0.0.1:0")
-        .await
-        .expect("bind peer");
+    let peer = UdpSocket::bind("127.0.0.1:0").await.expect("bind peer");
 
     peer.send_to(b"x", ("127.0.0.1", port))
         .await
@@ -180,7 +170,10 @@ async fn udp_close_client_drops_registry_entry() {
     let err = entity
         .send(client_id, b"after-close")
         .expect_err("send to closed client must fail");
-    assert!(matches!(err, netlab_server::domain::errors::AppError::UnknownClient(_)));
+    assert!(matches!(
+        err,
+        netlab_server::domain::errors::AppError::UnknownClient(_)
+    ));
 
     entity.shutdown().expect("shutdown");
 }

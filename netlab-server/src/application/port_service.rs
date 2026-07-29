@@ -279,8 +279,7 @@ impl WsPortOps for PortService {
         port: Option<u16>,
         token: Option<&str>,
     ) -> Result<u16, AppError> {
-        PortService::new_port(self, session, type_str, port, token)
-            .await
+        PortService::new_port(self, session, type_str, port, token).await
     }
 
     async fn send(&self, client: ClientId, data: &[u8]) -> Result<(), AppError> {
@@ -343,11 +342,7 @@ mod tests {
         new_entity_with(port, kind, None)
     }
 
-    fn new_entity_with(
-        port: u16,
-        kind: PortType,
-        owns: Option<ClientId>,
-    ) -> Arc<dyn PortEntity> {
+    fn new_entity_with(port: u16, kind: PortType, owns: Option<ClientId>) -> Arc<dyn PortEntity> {
         let mut e = MockEntity::new();
         e.expect_port().return_const(port);
         e.expect_kind().return_const(kind);

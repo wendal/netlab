@@ -65,11 +65,7 @@ pub fn make_port(port: u16) -> Value {
 /// `infrastructure::ws::handler` can pass `&state.service` where
 /// `state.service: Arc<PortService>` — deref coercion makes that
 /// work transparently.
-pub async fn handle(
-    service: &PortService,
-    session_id: Uuid,
-    text: &str,
-) -> Vec<Value> {
+pub async fn handle(service: &PortService, session_id: Uuid, text: &str) -> Vec<Value> {
     let inbound: Inbound = match serde_json::from_str(text) {
         Ok(i) => i,
         Err(_) => return vec![make_error("bad json")],
@@ -306,18 +302,14 @@ mod tests {
         let out = handle_sync(&svc, Uuid::new_v4(), r#"{"action":"newp","type":"http"}"#);
         assert_eq!(out.len(), 1);
         assert_eq!(out[0]["action"], "error");
-        assert!(out[0]["msg"]
-            .as_str()
-            .unwrap()
-            .contains("http"));
+        assert!(out[0]["msg"].as_str().unwrap().contains("http"));
     }
 
     #[test]
     fn sendc_hex_decodes_payload() {
         let target = ClientId::new_v4();
         let target_str = target.to_string();
-        let captured: Arc<std::sync::Mutex<Vec<u8>>> =
-            Arc::new(std::sync::Mutex::new(Vec::new()));
+        let captured: Arc<std::sync::Mutex<Vec<u8>>> = Arc::new(std::sync::Mutex::new(Vec::new()));
 
         // Entity that records what it was asked to `send`.
         let captured_c = captured.clone();
@@ -347,15 +339,10 @@ mod tests {
         let (svc, _) = build_service(pool, entity);
         let session = Uuid::new_v4();
         // Pre-register by allocating the port; handle() round-trip via newp.
-        let _ = handle_sync(
-            &svc,
-            session,
-            r#"{"action":"newp","type":"tcp"}"#,
-        );
+        let _ = handle_sync(&svc, session, r#"{"action":"newp","type":"tcp"}"#);
 
-        let text = format!(
-            r#"{{"action":"sendc","client":"{target_str}","data":"AABB","hex":true}}"#
-        );
+        let text =
+            format!(r#"{{"action":"sendc","client":"{target_str}","data":"AABB","hex":true}}"#);
         let out = handle_sync(&svc, session, &text);
         assert!(out.is_empty(), "expected no frames, got {out:?}");
         let bytes = captured.lock().unwrap();
@@ -366,8 +353,7 @@ mod tests {
     fn sendc_plain_uses_utf8_bytes() {
         let target = ClientId::new_v4();
         let target_str = target.to_string();
-        let captured: Arc<std::sync::Mutex<Vec<u8>>> =
-            Arc::new(std::sync::Mutex::new(Vec::new()));
+        let captured: Arc<std::sync::Mutex<Vec<u8>>> = Arc::new(std::sync::Mutex::new(Vec::new()));
 
         let captured_c = captured.clone();
         let target_c = target;
@@ -394,15 +380,10 @@ mod tests {
             .returning(|| Ok(2000_u16));
         let (svc, _) = build_service(pool, entity);
         let session = Uuid::new_v4();
-        let _ = handle_sync(
-            &svc,
-            session,
-            r#"{"action":"newp","type":"tcp"}"#,
-        );
+        let _ = handle_sync(&svc, session, r#"{"action":"newp","type":"tcp"}"#);
 
-        let text = format!(
-            r#"{{"action":"sendc","client":"{target_str}","data":"hi","hex":false}}"#
-        );
+        let text =
+            format!(r#"{{"action":"sendc","client":"{target_str}","data":"hi","hex":false}}"#);
         let out = handle_sync(&svc, session, &text);
         assert!(out.is_empty(), "expected no frames, got {out:?}");
         let bytes = captured.lock().unwrap();
@@ -413,26 +394,17 @@ mod tests {
     fn sendc_bad_hex_returns_error() {
         let (svc, _) = build_service(MockPool::new(), new_entity(2000));
         let target = ClientId::new_v4();
-        let text = format!(
-            r#"{{"action":"sendc","client":"{target}","data":"zz","hex":true}}"#
-        );
+        let text = format!(r#"{{"action":"sendc","client":"{target}","data":"zz","hex":true}}"#);
         let out = handle_sync(&svc, Uuid::new_v4(), &text);
         assert_eq!(out.len(), 1);
         assert_eq!(out[0]["action"], "error");
-        assert!(out[0]["msg"]
-            .as_str()
-            .unwrap()
-            .contains("hex"));
+        assert!(out[0]["msg"].as_str().unwrap().contains("hex"));
     }
 
     #[test]
     fn sendc_missing_client_returns_error() {
         let (svc, _) = build_service(MockPool::new(), new_entity(2000));
-        let out = handle_sync(
-            &svc,
-            Uuid::new_v4(),
-            r#"{"action":"sendc","data":"hi"}"#,
-        );
+        let out = handle_sync(&svc, Uuid::new_v4(), r#"{"action":"sendc","data":"hi"}"#);
         assert_eq!(out.len(), 1);
         assert_eq!(out[0]["action"], "error");
     }
@@ -459,14 +431,13 @@ mod tests {
             .return_const(crate::domain::port_entity::PortType::Tcp);
         e.expect_send()
             .returning(|_, _| Err(AppError::UnknownClient("mock".into())));
-        e.expect_close_client()
-            .returning(move |c| {
-                if c == target_c {
-                    Ok(())
-                } else {
-                    Err(AppError::UnknownClient("mock".into()))
-                }
-            });
+        e.expect_close_client().returning(move |c| {
+            if c == target_c {
+                Ok(())
+            } else {
+                Err(AppError::UnknownClient("mock".into()))
+            }
+        });
         e.expect_shutdown().returning(|| Ok(()));
         let entity: Arc<dyn crate::domain::port_entity::PortEntity> = Arc::new(e);
 
@@ -476,11 +447,7 @@ mod tests {
             .returning(|| Ok(2000_u16));
         let (svc, _) = build_service(pool, entity);
         let session = Uuid::new_v4();
-        let _ = handle_sync(
-            &svc,
-            session,
-            r#"{"action":"newp","type":"tcp"}"#,
-        );
+        let _ = handle_sync(&svc, session, r#"{"action":"newp","type":"tcp"}"#);
         let target_str = target.to_string();
         let text = format!(r#"{{"action":"closec","client":"{target_str}"}}"#);
         let out = handle_sync(&svc, session, &text);

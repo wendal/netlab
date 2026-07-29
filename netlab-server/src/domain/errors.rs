@@ -65,12 +65,27 @@ mod tests {
 
     #[test]
     fn display_text_for_simple_variants() {
-        assert_eq!(AppError::NoPortAvailable.to_string(), "no port available in pool");
-        assert_eq!(AppError::BadType("xxx".into()).to_string(), "bad port type: xxx");
+        assert_eq!(
+            AppError::NoPortAvailable.to_string(),
+            "no port available in pool"
+        );
+        assert_eq!(
+            AppError::BadType("xxx".into()).to_string(),
+            "bad port type: xxx"
+        );
         assert_eq!(AppError::BadHex.to_string(), "bad hex input");
-        assert_eq!(AppError::PortBind("os".into()).to_string(), "port bind failed: os");
-        assert_eq!(AppError::PortInUse(8080).to_string(), "port 8080 already in use");
-        assert_eq!(AppError::UnknownClient("abc".into()).to_string(), "unknown client: abc");
+        assert_eq!(
+            AppError::PortBind("os".into()).to_string(),
+            "port bind failed: os"
+        );
+        assert_eq!(
+            AppError::PortInUse(8080).to_string(),
+            "port 8080 already in use"
+        );
+        assert_eq!(
+            AppError::UnknownClient("abc".into()).to_string(),
+            "unknown client: abc"
+        );
         assert_eq!(AppError::BadToken.to_string(), "bad token");
     }
 

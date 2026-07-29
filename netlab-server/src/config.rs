@@ -10,10 +10,10 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Deserialize)]
 pub struct NetlabConfig {
     pub server: ServerConfig,
-    pub port:   PortPoolConfig,
-    pub ssl:    SslConfig,
+    pub port: PortPoolConfig,
+    pub ssl: SslConfig,
     pub metrics: MetricsConfig,
-    pub app:    AppConfig,
+    pub app: AppConfig,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -30,7 +30,7 @@ pub struct ServerConfig {
 #[derive(Debug, Clone, Deserialize)]
 pub struct PortPoolConfig {
     pub start: u16,
-    pub end:   u16,
+    pub end: u16,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -50,24 +50,21 @@ pub struct SslConfig {
 #[derive(Debug, Clone, Deserialize)]
 pub struct MetricsConfig {
     pub enabled: bool,
-    pub port:    u16,
+    pub port: u16,
 }
 
 impl NetlabConfig {
     pub fn load() -> anyhow::Result<Self> {
         // 1. Start with the embedded defaults.
         const EMBEDDED_TOML: &str = include_str!("../config/application.toml");
-        let mut value: toml::Value = toml::from_str(EMBEDDED_TOML)
-            .context("parsing embedded config")?;
+        let mut value: toml::Value =
+            toml::from_str(EMBEDDED_TOML).context("parsing embedded config")?;
 
         // 2. Overlay the on-disk file (if present).
-        for path in [
-            "config/application.toml",
-            "./application.toml",
-        ] {
+        for path in ["config/application.toml", "./application.toml"] {
             if let Ok(s) = std::fs::read_to_string(path) {
-                let overlay: toml::Value = toml::from_str(&s)
-                    .with_context(|| format!("parsing {path}"))?;
+                let overlay: toml::Value =
+                    toml::from_str(&s).with_context(|| format!("parsing {path}"))?;
                 merge_toml(&mut value, overlay);
                 tracing::info!("loaded config override from {path}");
                 break;
@@ -83,8 +80,7 @@ impl NetlabConfig {
         }
 
         // 4. Deserialize.
-        let cfg: NetlabConfig = value.try_into()
-            .context("deserializing config")?;
+        let cfg: NetlabConfig = value.try_into().context("deserializing config")?;
         Ok(cfg)
     }
 }
@@ -118,7 +114,9 @@ fn merge_toml(base: &mut toml::Value, overlay: toml::Value) {
 fn apply_env_overrides(value: &mut toml::Value) {
     use toml::Value;
     for (key, val) in std::env::vars() {
-        let Some(rest) = key.strip_prefix("NETLAB_") else { continue };
+        let Some(rest) = key.strip_prefix("NETLAB_") else {
+            continue;
+        };
         let path: Vec<&str> = rest.split("__").collect();
         if path.is_empty() {
             continue;
@@ -156,7 +154,8 @@ fn insert_at_path(value: &mut toml::Value, path: &[&str], new: toml::Value) {
         return;
     }
     if let Value::Table(t) = value {
-        let entry = t.entry(path[0].to_string())
+        let entry = t
+            .entry(path[0].to_string())
             .or_insert_with(|| Value::Table(toml::map::Map::new()));
         if !matches!(entry, Value::Table(_)) {
             *entry = Value::Table(toml::map::Map::new());

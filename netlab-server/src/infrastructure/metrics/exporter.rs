@@ -15,10 +15,10 @@
 
 use std::net::SocketAddr;
 
-use axum::Router;
 use axum::http::header;
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::Router;
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 
@@ -32,8 +32,7 @@ static HANDLE: Lazy<Mutex<Option<metrics_exporter_prometheus::PrometheusHandle>>
 /// the inline [`metrics_handler`] on the main HTTP port. Safe to call
 /// once at process start.
 pub fn install() -> anyhow::Result<()> {
-    let handle = metrics_exporter_prometheus::PrometheusBuilder::new()
-        .install_recorder()?;
+    let handle = metrics_exporter_prometheus::PrometheusBuilder::new().install_recorder()?;
     *HANDLE.lock() = Some(handle);
     Ok(())
 }
@@ -81,10 +80,7 @@ pub async fn metrics_handler() -> impl IntoResponse {
     match guard.as_ref() {
         Some(handle) => {
             let body = handle.render();
-            (
-                [(header::CONTENT_TYPE, "text/plain; version=0.0.4")],
-                body,
-            )
+            ([(header::CONTENT_TYPE, "text/plain; version=0.0.4")], body)
         }
         None => (
             [(header::CONTENT_TYPE, "text/plain")],

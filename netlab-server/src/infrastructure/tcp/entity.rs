@@ -79,7 +79,11 @@ impl TcpPortEntity {
 
         let entity = Arc::new(Self {
             port: bound_port,
-            kind: if use_tls { PortType::SslTcp } else { PortType::Tcp },
+            kind: if use_tls {
+                PortType::SslTcp
+            } else {
+                PortType::Tcp
+            },
             clients: Mutex::new(HashMap::new()),
             accept_task: Mutex::new(None),
             shutdown_flag: Arc::new(AtomicBool::new(false)),
@@ -108,8 +112,7 @@ impl TcpPortEntity {
                 };
 
                 let client_id = new_client_id();
-                let addr_str =
-                    ClientEndpoint::new(peer.ip().to_string(), peer.port()).to_string();
+                let addr_str = ClientEndpoint::new(peer.ip().to_string(), peer.port()).to_string();
 
                 let events_c = events_tx.clone();
                 let proto_c = proto.clone();
