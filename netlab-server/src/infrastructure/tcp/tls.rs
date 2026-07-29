@@ -181,15 +181,14 @@ mod tests {
         let cert_pem = cert.pem();
         let key_pem = key_pair.serialize_pem();
 
-        let cert_dir =
-            std::env::temp_dir().join(format!("netlab-tls-test-{}-cert.pem", std::process::id()));
-        let key_dir =
-            std::env::temp_dir().join(format!("netlab-tls-test-{}-key.pem", std::process::id()));
-        std::fs::write(&cert_dir, cert_pem).expect("write cert");
-        std::fs::write(&key_dir, key_pem).expect("write key");
+        let id = uuid::Uuid::new_v4();
+        let cert_path = std::env::temp_dir().join(format!("netlab-tls-test-{id}-cert.pem"));
+        let key_path = std::env::temp_dir().join(format!("netlab-tls-test-{id}-key.pem"));
+        std::fs::write(&cert_path, cert_pem).expect("write cert");
+        std::fs::write(&key_path, key_pem).expect("write key");
         (
-            cert_dir.to_string_lossy().into_owned(),
-            key_dir.to_string_lossy().into_owned(),
+            cert_path.to_string_lossy().into_owned(),
+            key_path.to_string_lossy().into_owned(),
         )
     }
 
@@ -219,7 +218,8 @@ mod tests {
 
     #[test]
     fn from_pem_files_empty_cert_errors() {
-        let dir = std::env::temp_dir().join(format!("netlab-empty-{}.pem", std::process::id()));
+        let id = uuid::Uuid::new_v4();
+        let dir = std::env::temp_dir().join(format!("netlab-empty-{id}.pem"));
         std::fs::write(&dir, b"").expect("write empty");
         let (_, key) = write_temp_pem_pair();
         let result = TlsMaterial::from_pem_files(dir.to_str().unwrap(), &key, None);
