@@ -10,9 +10,9 @@
 //!    - outbound writes fed by an `mpsc::UnboundedReceiver`, which is
 //!      what [`PortEntity::send`] produces.
 //! 3. Registers the client in [`entity.clients`] so the application layer
-//!      can find it while it's connected.
+//!    can find it while it's connected.
 //! 4. Emits [`WsEvent::Closed`] on EOF and removes the client from the
-//!      registry so the connection cleanly tears down.
+//!    registry so the connection cleanly tears down.
 //!
 //! The shape mirrors the Java `TcpPortEntity` from the original
 //! `luatos-netlab` server, ported to `tokio`.

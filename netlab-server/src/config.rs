@@ -112,7 +112,6 @@ fn merge_toml(base: &mut toml::Value, overlay: toml::Value) {
 }
 
 fn apply_env_overrides(value: &mut toml::Value) {
-    use toml::Value;
     for (key, val) in std::env::vars() {
         let Some(rest) = key.strip_prefix("NETLAB_") else {
             continue;

@@ -123,7 +123,7 @@ fn load_first_private_key<R: std::io::BufRead>(
 ) -> anyhow::Result<PrivateKeyDer<'static>> {
     // Try PKCS#8 first; rustls_pemfile iterators yield one item per key
     // found in the file. The first one is returned (we only need one).
-    for item in rustls_pemfile::pkcs8_private_keys(reader) {
+    if let Some(item) = rustls_pemfile::pkcs8_private_keys(reader).next() {
         return item
             .map(PrivateKeyDer::from)
             .map_err(|e| anyhow::anyhow!("parsing PKCS#8 key: {e}"));
