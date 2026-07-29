@@ -102,8 +102,8 @@ mod tests {
     #[test]
     fn from_serde_json_error_routes_to_json_variant() {
         // Force a serde_json error by feeding garbage to from_str.
-        let bad: serde_json::Error = serde_json::from_str::<i32>("not-a-number")
-            .expect_err("serde should fail");
+        let bad: serde_json::Error =
+            serde_json::from_str::<i32>("not-a-number").expect_err("serde should fail");
         let err: AppError = bad.into();
         assert!(matches!(err, AppError::Json(_)));
     }
