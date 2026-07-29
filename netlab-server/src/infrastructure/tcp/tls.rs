@@ -172,7 +172,6 @@ fn self_signed_config() -> anyhow::Result<ServerConfig> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
 
     fn write_temp_pem_pair() -> (String, String) {
         // Use rcgen to make a one-shot cert + key pair, write to temp.

@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn from_io_error_preserves_kind_message() {
-        let io_err = io::Error::new(io::ErrorKind::Other, "boom");
+        let io_err = io::Error::other("boom");
         let err: AppError = io_err.into();
         match err {
             AppError::Io(e) => assert_eq!(e.to_string(), "boom"),
@@ -103,8 +103,7 @@ mod tests {
     fn from_serde_json_error_routes_to_json_variant() {
         // Force a serde_json error by feeding garbage to from_str.
         let bad: serde_json::Error = serde_json::from_str::<i32>("not-a-number")
-            .err()
-            .expect("serde should fail");
+            .expect_err("serde should fail");
         let err: AppError = bad.into();
         assert!(matches!(err, AppError::Json(_)));
     }

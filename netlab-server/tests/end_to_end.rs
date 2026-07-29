@@ -7,9 +7,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use futures_util::{SinkExt, StreamExt};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
-use tokio::sync::mpsc;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::{client::IntoClientRequest, Message};
 
@@ -58,7 +57,7 @@ async fn full_flow_newp_tcp_echo_and_close() {
     // Connect WS
     let url = format!("ws://{addr}/ws/netlab");
     let req = url.into_client_request().expect("ws request");
-    let (mut ws, _resp) = tokio_tungstenite::connect_async(req)
+    let (ws, _resp) = tokio_tungstenite::connect_async(req)
         .await
         .expect("ws connect");
     let (mut ws_tx, mut ws_rx) = ws.split();
@@ -111,7 +110,7 @@ async fn full_flow_newp_udp_sends_datagram() {
     let (addr, _service) = bring_up_server().await;
     let url = format!("ws://{addr}/ws/netlab");
     let req = url.into_client_request().expect("ws request");
-    let (mut ws, _resp) = tokio_tungstenite::connect_async(req)
+    let (ws, _resp) = tokio_tungstenite::connect_async(req)
         .await
         .expect("ws connect");
     let (mut ws_tx, mut ws_rx) = ws.split();
@@ -148,7 +147,7 @@ async fn heartbeat_and_bad_json_do_not_break_session() {
     let (addr, _service) = bring_up_server().await;
     let url = format!("ws://{addr}/ws/netlab");
     let req = url.into_client_request().expect("ws request");
-    let (mut ws, _resp) = tokio_tungstenite::connect_async(req)
+    let (ws, _resp) = tokio_tungstenite::connect_async(req)
         .await
         .expect("ws connect");
     let (mut ws_tx, mut ws_rx) = ws.split();
